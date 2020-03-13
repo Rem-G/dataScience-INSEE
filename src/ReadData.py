@@ -69,7 +69,7 @@ def search_old_commune(request):
 	return potential_communes
 
 
-request = str(input("Enter a city : "))
+request = str(input("Enter a city :\n"))
 potential_communes = search_commune(request)
 
 for potential_commune in potential_communes:

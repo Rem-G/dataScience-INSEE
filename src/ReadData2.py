@@ -25,19 +25,25 @@ url = 'https://data.opendatasoft.com/api/records/1.0/search/?dataset=code-postal
 validation = False
 
 while not validation :
-	request = input("Enter a city : ")
+	request = input("Enter a city :\n")
 
 	response = auth_api(url.format(request)).json()
 
 	print(response['records'][0]['fields']['code_postal'], response['records'][0]['fields']['nom_com'], response['records'][0]['fields']['nom_reg'])
 
-	user_validation = input("Is it the good place ? y/n ")
+	user_validation = input("\nIs it the right place ? y/n\n")
 
 	if user_validation.lower() == 'y':
 		validation = True
 		insee_code = response['records'][0]['fields']['insee_com']
+		nom = response['records'][0]['fields']['nom_com']
+		population = response['records'][0]['fields']['population'] # Le [i] corresponds à la hierarchie des communes
+																	# fusionnées. [0] correspondant à la commune
+																	# principale
 
 		if float(insee_code) in old_communes:
-			print("Data is available to ", df_communes_fusion['Prise en compte'][old_communes.index(float(insee_code))])
+			print("\nData is available until ", df_communes_fusion['Prise en compte'][old_communes.index(float(insee_code))], "\n")
 
-print(insee_code)
+print("INSEE code :\n", insee_code)
+print("Population :\n", population)
+print("Name :\n", nom)
