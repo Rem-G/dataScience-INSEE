@@ -36,9 +36,9 @@ def user_request():
 
 		try:
 			if request.lower() not in response['records'][0]['fields']['nom_com'].lower():
-				try:
+				if 'ligne_5' in response['records'][0]['fields'].keys():
 					print(response['records'][0]['fields']['code_postal'], response['records'][0]['fields']['ligne_5'], response['records'][0]['fields']['nom_reg'])
-				except:
+				else:
 					print(response['records'][0]['fields']['code_postal'], response['records'][0]['fields']['nom_com'], response['records'][0]['fields']['nom_reg'])
 			else:
 				 print(response['records'][0]['fields']['code_postal'], response['records'][0]['fields']['nom_com'], response['records'][0]['fields']['nom_reg'])
@@ -120,52 +120,30 @@ def read_db_population(db_name, date, commune, departement):
 	conn = sqlite3.connect(db_name)
 	c = conn.cursor()
 
-	c.execute('''SELECT {} FROM COM_{} WHERE Libellé_de_commune LIKE '%{}%' AND Département_en_géographie_2018 LIKE '{}' '''.format(sql_command, date, commune, departement))
+	c.execute('''SELECT {} FROM COM_{} WHERE replace(replace(replace(replace(replace(replace(upper(Libellé_de_commune), 'É','E'), 'Ê','E'), 'È','E'), 'é','E'), 'ê','E'), 'è', 'E') LIKE upper('%{}%') AND Département_en_géographie_2018 LIKE '{}' '''.format(sql_command, date, commune, departement))
 
 	population = c.fetchall()
 
 	print(population)
 
-	if len(population) > 1:
+	if len(population):
 		for com in population:
-			if com[0].lower() == commune.lower():
+			if com[0].upper() == commune.upper():
 				return com
 
-	elif len(population):
-		return int(population[0][1])
-
 	elif not len(population):
-		c.execute('''SELECT {} FROM COM_{} WHERE Libellé_de_commune LIKE '%{}%' AND Département_en_géographie_2018 LIKE '{}' '''.format(sql_command, date, commune.split(" ")[0], departement))
+		c.execute('''SELECT {} FROM COM_{} WHERE replace(replace(replace(replace(replace(replace(upper(Libellé_de_commune), 'É','E'), 'Ê','E'), 'È','E'), 'é','E'), 'ê','E'), 'è', 'E') LIKE upper('%{}%') AND Département_en_géographie_2018 LIKE '{}' '''.format(sql_command, date, commune.split(" ")[0], departement))
 		population = c.fetchall()
 
-		if population[0][1]:
+		try:
 			return [int(population[0][1]), "Any data available for {}, data for {}".format(commune, commune.split(" ")[0])]
-		else:
+		except:
 			return "Any data available for this date"
 
-def pop_stats(year):
 
-	filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
-	conn = sqlite3.connect(filename)
-	cursor = conn.cursor()
-
-	table = "COM_" + str(year)
-	sum_women, sum_men = 0, 0
-
-	for row in cursor.execute("SELECT De_20_à_24_ans_Femmes_RP" + str(year) + ", De_20_à_24_ans_Hommes_RP" + str(year) + " FROM " + table + " EXCEPT SELECT De_20_à_24_ans_Femmes_RP" + str(year) + ", De_20_à_24_ans_Hommes_RP" + str(year) + " FROM " + table + " WHERE ROWID = 1"):
-		if str(row[0]) != 'None' and str(row[1]) != 'None':
-			sum_women += float(str(row[0]))
-			sum_men += float(str(row[1]))
-
-	return(sum_women, sum_men)
-
-# create_db_population()
-
-year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
-print("\nIn", year, "there was", pop_stats(year)[0], "women aged between 20 and 24 and", pop_stats(year)[1], "men aged between 20 and 24\n") # Ca prend toutes les communes, je n'ai pas réussi à choisir une commune en particulier
-
+#create_db_population()
 com_dep = user_request()
-population = read_db_population(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db", "1968", com_dep[0], com_dep[1])
+population = read_db_population(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
 
 print(population, "POPULATION")
 
