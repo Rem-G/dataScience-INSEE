@@ -143,8 +143,27 @@ def read_db_population(db_name, date, commune, departement):
 		else:
 			return "Any data available for this date"
 
+def pop_stats(year):
 
-#create_db_population()
+	filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
+	conn = sqlite3.connect(filename)
+	cursor = conn.cursor()
+
+	table = "COM_" + str(year)
+	sum_women, sum_men = 0, 0
+
+	for row in cursor.execute("SELECT De_20_à_24_ans_Femmes_RP" + str(year) + ", De_20_à_24_ans_Hommes_RP" + str(year) + " FROM " + table + " EXCEPT SELECT De_20_à_24_ans_Femmes_RP" + str(year) + ", De_20_à_24_ans_Hommes_RP" + str(year) + " FROM " + table + " WHERE ROWID = 1"):
+		if str(row[0]) != 'None' and str(row[1]) != 'None':
+			sum_women += float(str(row[0]))
+			sum_men += float(str(row[1]))
+
+	return(sum_women, sum_men)
+
+# create_db_population()
+
+year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
+print("\nIn", year, "there was", pop_stats(year)[0], "women aged between 20 and 24 and", pop_stats(year)[1], "men aged between 20 and 24\n") # Ca prend toutes les communes, je n'ai pas réussi à choisir une commune en particulier
+
 com_dep = user_request()
 population = read_db_population(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db", "1968", com_dep[0], com_dep[1])
 
