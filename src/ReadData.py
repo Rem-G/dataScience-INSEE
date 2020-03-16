@@ -93,7 +93,7 @@ def create_db_population():
 		df.columns = df.columns.str.replace('\n', '_')
 
 		df.to_sql(sheet, conn, index = False, if_exists = "replace")
-		print(sheet)
+		print(sheet, "done")
 
 	conn.commit()
 	conn.close()
@@ -132,6 +132,7 @@ def read_db_population(db_name, date, commune, departement):
 				return com
 
 	elif not len(population):
+		#Communes avec arrondissements : Marseille 1er arrondissement -> Marseille
 		c.execute('''SELECT {} FROM COM_{} WHERE replace(replace(replace(replace(replace(replace(upper(Libellé_de_commune), 'É','E'), 'Ê','E'), 'È','E'), 'é','E'), 'ê','E'), 'è', 'E') LIKE upper('%{}%') AND Département_en_géographie_2018 LIKE '{}' '''.format(sql_command, date, commune.split(" ")[0], departement))
 		population = c.fetchall()
 
@@ -140,6 +141,26 @@ def read_db_population(db_name, date, commune, departement):
 		except:
 			return "Any data available for this date"
 
+def pop_stats(year):
+
+	filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
+	conn = sqlite3.connect(filename)
+	cursor = conn.cursor()
+
+	table = "COM_" + str(year)
+	sum_women, sum_men = 0, 0
+
+	for row in cursor.execute("SELECT De_20_à_24_ans_Femmes_RP" + str(year) + ", De_20_à_24_ans_Hommes_RP" + str(year) + " FROM " + table + " EXCEPT SELECT De_20_à_24_ans_Femmes_RP" + str(year) + ", De_20_à_24_ans_Hommes_RP" + str(year) + " FROM " + table + " WHERE ROWID = 1"):
+		if str(row[0]) != 'None' and str(row[1]) != 'None':
+			sum_women += float(str(row[0]))
+			sum_men += float(str(row[1]))
+
+	return(sum_women, sum_men)
+
+# create_db_population()
+
+year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
+print("\nIn", year, "there was", pop_stats(year)[0], "women aged between 20 and 24 and", pop_stats(year)[1], "men aged between 20 and 24\n") # Ca prend toutes les communes, je n'ai pas réussi à choisir une commune en particulier
 
 #create_db_population()
 com_dep = user_request()
