@@ -1,76 +1,77 @@
 import pandas as pd
 import os
 from pathlib import Path
-import math
-
-path_communes = str(Path(os.getcwd()).parent) + "/data/laposte_hexasmal.csv"
-data_communes = pd.read_csv(path_communes, sep=';')
-df_communes = pd.DataFrame(data_communes, columns = ['Code_commune_INSEE', 'Ligne_5', 'Nom_commune', 'Code_postal'])
+import json
+import requests
+import sqlite3
 
 path_communes_fusion = str(Path(os.getcwd()).parent) + "/data/laposte_commnouv.csv"
 data_communes_fusion = pd.read_csv(path_communes_fusion, sep=';')
-df_communes_fusion = pd.DataFrame(data_communes_fusion, columns = ['Prise en compte', 'Code INSEE Commune Nouvelle', 'Nom Commune Nouvelle Siège', 'Code INSEE Commune Déléguée (non actif)', 'Nom Commune Déléguée', 'Adresse 2016 - Ligne 5 Commune déléguée', 'Adresse 2016 - Ligne 6 Commune déléguée'])
+df_communes_fusion = pd.DataFrame(data_communes_fusion, columns = ['Prise en compte', 'Code INSEE Commune Nouvelle', 'Code INSEE Commune Déléguée (non actif)'])
 
-communes = list()
 old_communes = list()
 
-for commune in df_communes['Nom_commune']:
-	communes.append(commune)
-
-for old_commune in df_communes_fusion['Adresse 2016 - Ligne 5 Commune déléguée']:
+for old_commune in df_communes_fusion['Code INSEE Commune Déléguée (non actif)']:
 	old_communes.append(old_commune)
 
-def search_commune(request):
-	potential_communes = list()
 
-	for commune in communes:
-		if request.upper() in commune:
-			index = communes.index(commune)
+def create_db_population():
+	path_excel = str(Path(os.getcwd()).parent) + "/data/pop-sexe-age-quinquennal6816.xls"
+	com_dates = ["COM_1968", "COM_1975", "COM_1982", "COM_1990", "COM_1999", "COM_2006", "COM_2011", "COM_2016"]
 
-			if isinstance(df_communes['Ligne_5'][index], str):#not empty cell
-				old_communes = search_old_commune(request)
+	filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
 
-				if len(old_communes):
-					potential_communes += old_communes
-				else:
-					data = {
-							"Nom commune" : df_communes['Ligne_5'][index],
-							"Code postal" : df_communes['Code_postal'][index],
-							"Code INSEE" : df_communes['Code_commune_INSEE'][index]
-							}
-			else:
-				data = {
-						"Nom commune" : df_communes['Nom_commune'][index],
-						"Code postal" : df_communes['Code_postal'][index],
-						"Code INSEE" : df_communes['Code_commune_INSEE'][index]
-						}
+	con = sqlite3.connect(filename)
 
-			potential_communes.append(data)
-			#communes.pop(index)
+	for sheet in com_dates:
+		df = pd.read_excel(path_excel, sheet_name = sheet, skiprows = range(12), usecols = "F:AT")
+		df.to_sql(sheet, con, index = False, if_exists = "replace")
+		print(sheet)
 
-	return potential_communes
+	con.commit()
+	con.close()
 
+	print("Done")
 
-def search_old_commune(request):
-	potential_communes = list()
+def auth_api(url):
+	token_auth = '0f045f2a33890a5e3b11911fff10efc9918c0785d7665299a8c8fa1d'
 
-	for old_commune in old_communes:
-		if isinstance(old_commune, str) and request.upper() in old_commune:
-			index = old_communes.index(old_commune)
+	headers={'Authorization': token_auth}
+	response = requests.get(url, headers=headers)
+	return response
 
-			data = {
-					"Nom commune" : old_communes[index],
-					"Code INSEE" : df_communes_fusion['Code INSEE Commune Déléguée (non actif)'][index],
-					"Données disponibles jusque" : df_communes_fusion['Prise en compte'][index]
-					}
-			potential_communes.append(data)
-			old_communes.pop(index)
+def user_request():
 
-	return potential_communes
+	url = 'https://data.opendatasoft.com/api/records/1.0/search/?dataset=code-postal-code-insee-2015%40public&q={}'
 
+	validation = False
 
-request = str(input("Enter a city :\n"))
-potential_communes = search_commune(request)
+	while not validation :
+		request = input("Enter a city :\n")
 
-for potential_commune in potential_communes:
-	print(potential_commune)
+		response = auth_api(url.format(request)).json()
+
+		print(response['records'][0]['fields']['code_postal'], response['records'][0]['fields']['nom_com'], response['records'][0]['fields']['nom_reg'])
+
+		user_validation = input("\nIs it the right place ? y/n\n")
+
+		if user_validation.lower() == 'y':
+			validation = True
+			insee_code = response['records'][0]['fields']['insee_com']
+			nom = response['records'][0]['fields']['nom_com']
+			population = response['records'][0]['fields']['population'] # Le [i] corresponds à la hierarchie des communes
+																		# fusionnées. [0] correspondant à la commune
+																		# principale
+
+			if float(insee_code) in old_communes:
+				print("\nData is available until ", df_communes_fusion['Prise en compte'][old_communes.index(float(insee_code))], "\n")
+
+	print("INSEE code :\n", insee_code)
+	print("Population :\n", population)
+	print("Name :\n", nom)
+
+	return insee_code
+
+insee_code = user_request()
+#create_db_population()
+
