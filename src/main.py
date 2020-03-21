@@ -84,8 +84,11 @@ def main():
 	data = Data()
 	statistic = Statistic()
 
-	data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
-	data.create_db(False, "pop-socialcategories.xls")
+	request = input("Create the databases ?(y/n)\n").upper()
+	if request == "Y":
+		data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
+		data.add_columns(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db")
+		data.create_db(False, "pop-socialcategories.xls")
 
 	com_dep = user_request()
 	population = data.read_db_population(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
