@@ -37,6 +37,57 @@ class Data():
 
 		print("Done")
 
+	def add_columns(self, db_name):
+		ages_pop = ["De 0 à 4 ans", "De 5 à 9 ans", "De 10 à 14 ans", "De 15 à 19 ans", "De 20 à 24 ans", "De 25 à 29 ans", "De 30 à 34 ans", "De 35 à 39 ans", "De 40 à 44 ans", "De 45 à 49 ans", "De 50 à 54 ans", "De 55 à 59 ans", "De 60 à 64 ans", "De 55 à 59 ans", "De 70 à 74 ans", "De 75 à 79 ans", "De 80 à 84 ans", "De 85 à 89 ans", "De 90 à 94 ans", "95 ans et plus"]
+		genders_pop = ["Hommes", "Femmes"]
+		dates = ["1968", "1975", "1982", "1990", "1999", "2006", "2011", "2016"]
+
+		list_columns = list()
+
+
+		conn = sqlite3.connect(db_name)
+		c = conn.cursor()
+
+		c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+		tables = c.fetchall()
+
+		for table in tables:
+			date = dates[tables.index(table)]
+			for age in ages_pop:
+				for gender in genders_pop:
+					list_columns.append('"' + age.replace(" ", "_") + "_" + gender + "_" + "RP" + date + '"')
+
+			sql_command = "Libellé_de_commune, "
+
+			for column in list_columns:
+				sql_command += "CAST(" + column + " AS FLOAT) + "
+
+			sql_command = sql_command[:len(sql_command)-3]
+
+			values = c.execute("""SELECT {} FROM {}""".format(sql_command, str(table[0])))
+
+			values = c.fetchall()
+
+			try:
+				c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN pop_men")
+				c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN pop_women")
+				c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN population")
+			except:
+				pass
+
+			for value in values:
+				if None in value:
+					value = (None, "NULL")
+
+				sql = "INSERT INTO {} VALUES ({})".format(str(table[0]) + " (population)", value[1])
+
+				print(sql)
+				c.execute(sql)
+
+		conn.commit()
+		conn.close()
+
+
 
 	def read_db_population(self, db_name, date, commune, departement):
 		ages_pop = ["De 0 à 4 ans", "De 5 à 9 ans", "De 10 à 14 ans", "De 15 à 19 ans", "De 20 à 24 ans", "De 25 à 29 ans", "De 30 à 34 ans", "De 35 à 39 ans", "De 40 à 44 ans", "De 45 à 49 ans", "De 50 à 54 ans", "De 55 à 59 ans", "De 60 à 64 ans", "De 55 à 59 ans", "De 70 à 74 ans", "De 75 à 79 ans", "De 80 à 84 ans", "De 85 à 89 ans", "De 90 à 94 ans", "95 ans et plus"]
