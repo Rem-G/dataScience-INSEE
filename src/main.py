@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import requests
 import json
+import zipfile
+import argparse
 
 from data import *
 from statistic import *
@@ -80,15 +82,31 @@ def user_request():
 
 	return [nom_com, dep_com]
 
-def main():
+def main(dbreset = False):
 	data = Data()
 	statistic = Statistic()
 
-	request = input("Create the databases ?(y/n)\n").upper()
-	if request == "Y":
-		#data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
+	if dbreset:
+		print("###############")
+		print("Reset databases")
+		print("############### \n")
+
+	if dbreset or not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"):
+
+		if not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/pop-sexe-age-quinquennal6816.xls"):
+			with zipfile.ZipFile(str(Path(os.getcwd()).parent) + "/data/pop-sexe-age-quinquennal6816.xls.zip", 'r') as zip_ref:
+				zip_ref.extractall(str(Path(os.getcwd()).parent) + "/data")
+
+		data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
 		data.add_columns(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db")
-		#data.create_db(False, "pop-socialcategories.xls")
+
+	if dbreset or not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"):
+
+		if not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/pop-socialcategories.xls"):
+			with zipfile.ZipFile(str(Path(os.getcwd()).parent) + "/data/pop-socialcategories.xls.zip", 'r') as zip_ref:
+				zip_ref.extractall(str(Path(os.getcwd()).parent) + "/data")
+
+		data.create_db(False, "pop-socialcategories.xls")
 
 	com_dep = user_request()
 	population = data.read_db_population(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
@@ -98,7 +116,14 @@ def main():
 	print("\nIn", year, "there was", statistic.pop_stats(year)[0], "women aged between 20 and 24 and", statistic.pop_stats(year)[1], "men aged between 20 and 24\n") # Ca prend toutes les communes, je n'ai pas réussi à choisir une commune en particulier
 
 if __name__ == '__main__':
-	main()
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
+	args = parser.parse_args()
+
+	if args.dbreset:
+		main(dbreset = True)
+	else:
+		main()
 
 
 
