@@ -125,8 +125,8 @@ class Data():
 			population = c.fetchall()
 
 			try:
-				return [int(population[0][1]), "Any data available for {}, data for {}".format(commune, commune.split(" ")[0])]
+				return [int(population[0][1]), "No data available for {}, data for {}".format(commune, commune.split(" ")[0])]
 			except:
-				return None #Any data available for this date
+				return None # No data available for this date
 
 
