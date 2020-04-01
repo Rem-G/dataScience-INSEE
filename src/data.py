@@ -64,21 +64,30 @@ class Data():
 			tables = c.fetchall()
 
 			for table in tables:
-				sql_command = """Libelle_de_commune, """
+				sql_command_f = """Libelle_de_commune, """
+				sql_command_m = sql_command_f
 
 				columns_cursor = c.execute('select * from {}'.format(table[0]))
 				list_columns = [description[0] for description in columns_cursor.description]
 
 				for column in list_columns:
-					if "RP" in column:
-						sql_command += """CAST("{}" AS FLOAT) + """.format(column)
+					if "Femmes" in column:
+						sql_command_f += """CAST("{}" AS FLOAT) + """.format(column)
 
-				sql_command = sql_command[:len(sql_command)-3]
+					if "Hommes" in column:
+						sql_command_m += """CAST("{}" AS FLOAT) + """.format(column)
 
-				print(sql_command)
+				sql_command_f = sql_command_f[:len(sql_command_f) - 3] # Gets rid of the last 3 characters ([space] + [space])
+				sql_command_m = sql_command_m[:len(sql_command_m) - 3]
 
-				values = c.execute("SELECT {} FROM {}".format(sql_command, str(table[0]))) 
-				values = c.fetchall()
+				print(sql_command_f)
+				print(sql_command_m)
+
+				values_pop_f = c.execute("SELECT {} FROM {}".format(sql_command_f, str(table[0])))
+				values_pop_f = c.fetchall()
+
+				values_pop_m = c.execute("SELECT {} FROM {}".format(sql_command_m, str(table[0])))
+				values_pop_m = c.fetchall()
 
 				try:
 					c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN pop_men")
@@ -87,14 +96,26 @@ class Data():
 				except:
 					pass
 
-				for value in values[1:]:#Drop row LIBELLE:
+				for value in values_pop_f[1:]:  # Drop row LIBELLE:
 					if None in value:
 						value = (None, "NULL")
 
-					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "population", str(value[1]), str(value[0]))
+					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop_women", str(value[1]), str(value[0]))
 
 					print(sql)
 					c.execute(sql)
+
+				for value in values_pop_m[1:]:  # Drop row LIBELLE:
+					if None in value:
+						value = (None, "NULL")
+
+					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop_men", str(value[1]), str(value[0]))
+
+					print(sql)
+					c.execute(sql)
+
+					command_sum = '(SELECT CAST(pop_women AS FLOAT) + CAST(pop_men AS FLOAT) FROM {} WHERE Libelle_de_commune = "{}"'.format(str(table[0]), str(value[0]))
+					sql_pop = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop", command_sum, str(value[0]))
 
 			conn.commit()
 			conn.close()
