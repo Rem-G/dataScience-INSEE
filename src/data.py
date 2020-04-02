@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import sqlite3
 from unidecode import unidecode
+import time
+import datetime
 
 class Data():
 
@@ -37,8 +39,7 @@ class Data():
 
 		for sheet in com_dates:
 			df = pd.read_excel(path_excel, sheet_name = sheet, skiprows = skiprows, usecols = usecols)
-			#Or NKFD ?
-			df.columns = df.columns.str.normalize('NFKC').str.encode('ascii', errors='ignore').str.decode('utf-8')
+			df.columns = df.columns.str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
 			df.columns = df.columns.str.replace(' ', '_')
 			df.columns = df.columns.str.replace('\n', '_')
 			print(df.columns)
@@ -56,6 +57,9 @@ class Data():
 			# genders_pop = ["Hommes", "Femmes"]
 			# dates = ["1968", "1975", "1982", "1990", "1999", "2006", "2011", "2016"]
 			list_columns = list()
+			cpt = 0
+			elapsed_time = 0
+			total_time = 0
 
 			conn = sqlite3.connect(db_name)
 			c = conn.cursor()
@@ -64,8 +68,7 @@ class Data():
 			tables = c.fetchall()
 
 			for table in tables:
-				sql_command_f = """Libelle_de_commune, """
-				sql_command_m = sql_command_f
+				sql_command_f = sql_command_m = """Libelle_de_commune, Departement_en_geographie_2018, """
 
 				columns_cursor = c.execute('select * from {}'.format(table[0]))
 				list_columns = [description[0] for description in columns_cursor.description]
@@ -80,14 +83,13 @@ class Data():
 				sql_command_f = sql_command_f[:len(sql_command_f) - 3] # Gets rid of the last 3 characters ([space] + [space])
 				sql_command_m = sql_command_m[:len(sql_command_m) - 3]
 
-				print(sql_command_f)
-				print(sql_command_m)
-
 				values_pop_f = c.execute("SELECT {} FROM {}".format(sql_command_f, str(table[0])))
 				values_pop_f = c.fetchall()
 
 				values_pop_m = c.execute("SELECT {} FROM {}".format(sql_command_m, str(table[0])))
 				values_pop_m = c.fetchall()
+
+				max_values = len(values_pop_m)*len(tables)*3
 
 				try:
 					c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN pop_men")
@@ -97,25 +99,38 @@ class Data():
 					pass
 
 				for value in values_pop_f[1:]:  # Drop row LIBELLE:
+					cpt += 1;
+					print('Table', table[0], 'Dep', value[1], 'Done', round((cpt/max_values)*100, 2), '%', 'Remaining time', datetime.datetime.fromtimestamp(int((total_time/cpt)*(max_values-cpt))).strftime('%H:%M:%S'), end='\r')
 					if None in value:
-						value = (None, "NULL")
+						value = (None, None, "NULL")
 
-					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop_women", str(value[1]), str(value[0]))
+					t = time.process_time()
 
-					print(sql)
+					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" AND Departement_en_geographie_2018 = "{}" """.format(str(table[0]), "pop_women", str(value[2]), str(value[0]), str(value[1]))
 					c.execute(sql)
+
+					elapsed_time = time.process_time() - t
+					total_time += elapsed_time
 
 				for value in values_pop_m[1:]:  # Drop row LIBELLE:
+					cpt += 1;
+					print('Table', table[0], 'Dep', value[1], 'Done', round((cpt/max_values)*100, 2), '%', 'Remaining time', datetime.datetime.fromtimestamp(int((total_time/cpt)*(max_values-cpt))).strftime('%H:%M:%S'), end='\r')
+
 					if None in value:
-						value = (None, "NULL")
+						value = (None, None, "NULL")
 
-					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop_men", str(value[1]), str(value[0]))
+					t = time.process_time()
 
-					print(sql)
+					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop_men", str(value[2]), str(value[0]))
 					c.execute(sql)
+					conn.commit()
 
-					command_sum = '(SELECT CAST(pop_women AS FLOAT) + CAST(pop_men AS FLOAT) FROM {} WHERE Libelle_de_commune = "{}"'.format(str(table[0]), str(value[0]))
-					sql_pop = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop", command_sum, str(value[0]))
+					command_sum = """(SELECT (CAST(pop_women AS FLOAT) + CAST(pop_men AS FLOAT)) FROM {} WHERE Libelle_de_commune = "{}" AND Departement_en_geographie_2018 = "{}")""".format(str(table[0]), str(value[0]), str(value[1]))
+					sql_pop = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" AND Departement_en_geographie_2018 = "{}" """.format(str(table[0]), "population", command_sum, str(value[0]), str(value[1]))
+					c.execute(sql_pop)
+
+					elapsed_time = time.process_time() - t
+					total_time += elapsed_time
 
 			conn.commit()
 			conn.close()
@@ -126,8 +141,6 @@ class Data():
 
 		conn = sqlite3.connect(db_name)
 		c = conn.cursor()
-
-		#print('''SELECT Libelle_de_commune, population FROM COM_{} WHERE upper(replace(replace(replace(replace(replace(replace(Libelle_de_commune, 'É','E'), 'Ê','E'), 'È','E'), 'é','e'), 'ê','e'), 'è', 'e')) LIKE upper('%{}%') AND Departement_en_geographie_2018 LIKE '{}' '''.format(date, commune, departement))
 
 		c.execute('''SELECT Libelle_de_commune, population FROM COM_{} WHERE upper(replace(replace(replace(replace(replace(replace(Libelle_de_commune, 'É','E'), 'Ê','E'), 'È','E'), 'é','e'), 'ê','e'), 'è', 'e')) LIKE upper('%{}%') AND Departement_en_geographie_2018 LIKE '{}' '''.format(date, commune, departement))
 

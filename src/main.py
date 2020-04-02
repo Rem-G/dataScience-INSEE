@@ -85,31 +85,36 @@ def user_request():
 def main(dbreset = False):
 	data = Data()
 	statistic = Statistic()
+	parent_dir = str(Path(os.getcwd()).parent)
 
 	if dbreset:
 		print("###############")
 		print("Reset databases")
 		print("############### \n")
 
-	if dbreset or not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"):
+		print("This operation may take several hours\n")
+		if input("Reset databases ? y/n : ").lower() == "n":
+			dbreset = False
 
-		if not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/pop-sexe-age-quinquennal6816.xls"):
-			with zipfile.ZipFile(str(Path(os.getcwd()).parent) + "/data/pop-sexe-age-quinquennal6816.xls.zip", 'r') as zip_ref:
-				zip_ref.extractall(str(Path(os.getcwd()).parent) + "/data")
+	if dbreset or not os.path.isfile(parent_dir + "/data/population_1968-2016.db"):
 
-		data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
-		data.add_columns(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db")
+		if not os.path.isfile(parent_dir + "/data/pop-sexe-age-quinquennal6816.xls"):
+			with zipfile.ZipFile(parent_dir + "/data/pop-sexe-age-quinquennal6816.xls.zip", 'r') as zip_ref:
+				zip_ref.extractall(parent_dir + "/data")
 
-	if dbreset or not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"):
+		#data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
+		data.add_columns(parent_dir + "/data/population_1968-2016.db")
 
-		if not os.path.isfile(str(Path(os.getcwd()).parent) + "/data/pop-socialcategories.xls"):
-			with zipfile.ZipFile(str(Path(os.getcwd()).parent) + "/data/pop-socialcategories.xls.zip", 'r') as zip_ref:
-				zip_ref.extractall(str(Path(os.getcwd()).parent) + "/data")
+	if dbreset or not os.path.isfile(parent_dir + "/data/population_social_categories_1968-2016.db"):
 
-		data.create_db(False, "pop-socialcategories.xls")
+		if not os.path.isfile(parent_dir + "/data/pop-socialcategories.xls"):
+			with zipfile.ZipFile(parent_dir + "/data/pop-socialcategories.xls.zip", 'r') as zip_ref:
+				zip_ref.extractall(parent_dir + "/data")
+
+		#data.create_db(False, "pop-socialcategories.xls")
 
 	com_dep = user_request()
-	population = data.read_db_population(str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
+	population = data.read_db_population(parent_dir + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
 	print(population, "POPULATION")
 
 	year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
