@@ -1,4 +1,5 @@
 import pandas as pd
+import pandas as pd
 import os
 from pathlib import Path
 import sqlite3
@@ -42,102 +43,42 @@ class Data():
 			df.columns = df.columns.str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
 			df.columns = df.columns.str.replace(' ', '_')
 			df.columns = df.columns.str.replace('\n', '_')
-			print(df.columns)
+
+			cpt = 0
+
+			row_pop = float(0)
+			row_pop_women = float(0)
+			row_pop_men = float(0)
+
+			date = "RP"+sheet.split("_")[1]
+			rows = df.iterrows()
+			columns = df.columns[2:]
+
+			for index, row in rows:
+				print('Table', sheet, 'Done', round((cpt/len(df.index))*100, 2), '%', 'Total done', round( ( (cpt + len(df.index)*com_dates.index(sheet))/ (len(df.index)*len(com_dates)) )*100, 2), '%', end='\r')
+				cpt += 1
+
+				if index > 0:
+					for column in columns:
+							if "Femmes" in column:
+								row_pop_women += float(row[column])
+							elif "Hommes" in column:
+								row_pop_men += float(row[column])
+
+					row_pop = row_pop_men + row_pop_women
+					df.loc[index, 'pop_men'] = row_pop_men
+					df.loc[index, 'pop_women'] = row_pop_women
+					df.loc[index, 'population'] = row_pop
+
+					row_pop = row_pop_women = row_pop_men = float(0)
 
 			df.to_sql(sheet, conn, index = False, if_exists = "replace")
-			print(sheet, "done")
 
 		conn.commit()
 		conn.close()
 
-		print("Done")
-
-	def add_columns(self, db_name):
-			# ages_pop = ["De 0 à 4 ans", "De 5 à 9 ans", "De 10 à 14 ans", "De 15 à 19 ans", "De 20 à 24 ans", "De 25 à 29 ans", "De 30 à 34 ans", "De 35 à 39 ans", "De 40 à 44 ans", "De 45 à 49 ans", "De 50 à 54 ans", "De 55 à 59 ans", "De 60 à 64 ans", "De 55 à 59 ans", "De 70 à 74 ans", "De 75 à 79 ans", "De 80 à 84 ans", "De 85 à 89 ans", "De 90 à 94 ans", "95 ans et plus"]
-			# genders_pop = ["Hommes", "Femmes"]
-			# dates = ["1968", "1975", "1982", "1990", "1999", "2006", "2011", "2016"]
-			list_columns = list()
-			cpt = 0
-			elapsed_time = 0
-			total_time = 0
-
-			conn = sqlite3.connect(db_name)
-			c = conn.cursor()
-
-			c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-			tables = c.fetchall()
-
-			for table in tables:
-				sql_command_f = sql_command_m = """Libelle_de_commune, Departement_en_geographie_2018, """
-
-				columns_cursor = c.execute('select * from {}'.format(table[0]))
-				list_columns = [description[0] for description in columns_cursor.description]
-
-				for column in list_columns:
-					if "Femmes" in column:
-						sql_command_f += """CAST("{}" AS FLOAT) + """.format(column)
-
-					if "Hommes" in column:
-						sql_command_m += """CAST("{}" AS FLOAT) + """.format(column)
-
-				sql_command_f = sql_command_f[:len(sql_command_f) - 3] # Gets rid of the last 3 characters ([space] + [space])
-				sql_command_m = sql_command_m[:len(sql_command_m) - 3]
-
-				values_pop_f = c.execute("SELECT {} FROM {}".format(sql_command_f, str(table[0])))
-				values_pop_f = c.fetchall()
-
-				values_pop_m = c.execute("SELECT {} FROM {}".format(sql_command_m, str(table[0])))
-				values_pop_m = c.fetchall()
-
-				max_values = len(values_pop_m)*len(tables)*3
-
-				try:
-					c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN pop_men")
-					c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN pop_women")
-					c.execute("ALTER TABLE " + str(table[0]) + " ADD COLUMN population")
-				except:
-					pass
-
-				for value in values_pop_f[1:]:  # Drop row LIBELLE:
-					cpt += 1;
-					print('Table', table[0], 'Dep', value[1], 'Done', round((cpt/max_values)*100, 2), '%', 'Remaining time', datetime.datetime.fromtimestamp(int((total_time/cpt)*(max_values-cpt))).strftime('%H:%M:%S'), end='\r')
-					if None in value:
-						value = (None, None, "NULL")
-
-					t = time.process_time()
-
-					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" AND Departement_en_geographie_2018 = "{}" """.format(str(table[0]), "pop_women", str(value[2]), str(value[0]), str(value[1]))
-					c.execute(sql)
-
-					elapsed_time = time.process_time() - t
-					total_time += elapsed_time
-
-				for value in values_pop_m[1:]:  # Drop row LIBELLE:
-					cpt += 1;
-					print('Table', table[0], 'Dep', value[1], 'Done', round((cpt/max_values)*100, 2), '%', 'Remaining time', datetime.datetime.fromtimestamp(int((total_time/cpt)*(max_values-cpt))).strftime('%H:%M:%S'), end='\r')
-
-					if None in value:
-						value = (None, None, "NULL")
-
-					t = time.process_time()
-
-					sql = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" """.format(str(table[0]), "pop_men", str(value[2]), str(value[0]))
-					c.execute(sql)
-					conn.commit()
-
-					command_sum = """(SELECT (CAST(pop_women AS FLOAT) + CAST(pop_men AS FLOAT)) FROM {} WHERE Libelle_de_commune = "{}" AND Departement_en_geographie_2018 = "{}")""".format(str(table[0]), str(value[0]), str(value[1]))
-					sql_pop = """UPDATE {} SET {} = {} WHERE Libelle_de_commune = "{}" AND Departement_en_geographie_2018 = "{}" """.format(str(table[0]), "population", command_sum, str(value[0]), str(value[1]))
-					c.execute(sql_pop)
-
-					elapsed_time = time.process_time() - t
-					total_time += elapsed_time
-
-			conn.commit()
-			conn.close()
-		
-
 	def read_db_population(self, db_name, date, commune, departement):
-		ages_pop = ["De 0 à 4 ans", "De 5 à 9 ans", "De 10 à 14 ans", "De 15 à 19 ans", "De 20 à 24 ans", "De 25 à 29 ans", "De 30 à 34 ans", "De 35 à 39 ans", "De 40 à 44 ans", "De 45 à 49 ans", "De 50 à 54 ans", "De 55 à 59 ans", "De 60 à 64 ans", "De 55 à 59 ans", "De 70 à 74 ans", "De 75 à 79 ans", "De 80 à 84 ans", "De 85 à 89 ans", "De 90 à 94 ans", "95 ans et plus"]
+		#ages_pop = ["De 0 à 4 ans", "De 5 à 9 ans", "De 10 à 14 ans", "De 15 à 19 ans", "De 20 à 24 ans", "De 25 à 29 ans", "De 30 à 34 ans", "De 35 à 39 ans", "De 40 à 44 ans", "De 45 à 49 ans", "De 50 à 54 ans", "De 55 à 59 ans", "De 60 à 64 ans", "De 55 à 59 ans", "De 70 à 74 ans", "De 75 à 79 ans", "De 80 à 84 ans", "De 85 à 89 ans", "De 90 à 94 ans", "95 ans et plus"]
 
 		conn = sqlite3.connect(db_name)
 		c = conn.cursor()
