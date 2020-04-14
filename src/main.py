@@ -113,7 +113,7 @@ def main(dbreset = False):
 		data.create_db(False, "pop-socialcategories.xls")
 
 	com_dep = user_request()
-	population = data.read_db_population(parent_dir + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
+	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
 	print(population, "POPULATION")
 
 	year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
@@ -123,6 +123,11 @@ def main(dbreset = False):
 
 	else :
 		print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper())[0], "(", statistic.pop_stats(year, age, com_dep[0].upper())[1], "women &", statistic.pop_stats(year, age, com_dep[0].upper())[2], "man ) aged", age, "to", age + 9, "years in", com_dep[0].upper(), "\n")
+
+	age_group = statistic.get_largest_age_group(year, com_dep[0].upper())
+	print("The", age_group[0][1], "to", age_group[0][2], "age group is the most represented in", year, "in", com_dep[0].upper(), "with", age_group[0][0], "people.")
+	print("For the women, it's the", age_group[1][1], "to", age_group[1][2], "age group that is the most represented that year in", com_dep[0].upper(), "with", age_group[1][0], "women.")
+	print("As for the men, the", age_group[2][1], "to", age_group[2][2], "age group is the most represented with", age_group[2][0], "men.\n")
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

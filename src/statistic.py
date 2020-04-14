@@ -4,9 +4,34 @@ import sqlite3
 
 class Statistic():
 
-	# def get_je_sais_pas_quoi(self, year):
-	# 	for age in range(0, 86, 5):
+	def get_largest_age_group(self, year, city):
 
+		age_group = [0, 0, 0] # population, age_start, age_end
+		age_group_w = [0, 0, 0]
+		age_group_m = [0, 0, 0]
+
+		for age in range(0, 91, 5):
+
+			pop = self.pop_stats(year, age, city)[0]
+			pop_w = self.pop_stats(year, age, city)[1]
+			pop_m = self.pop_stats(year, age, city)[2]
+
+			if pop >= age_group[0]:
+				age_group[0] = pop
+				age_group[1] = age
+				age_group[2] = age + 9
+
+			elif pop_w >= age_group_w[0]:
+				age_group_w[0] = pop_w
+				age_group_w[1] = age
+				age_group_w[2] = age + 9
+
+			elif pop_m >= age_group_m[0]:
+				age_group_m[0] = pop_m
+				age_group_m[1] = age
+				age_group_m[2] = age + 9
+
+		return (age_group, age_group_w, age_group_m)
 
 	def pop_stats(self, year, age, city):
 
