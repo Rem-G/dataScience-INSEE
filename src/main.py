@@ -119,7 +119,7 @@ def main(dbreset = False):
 
 	year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
 	age = int(input("\nChoose a starting age (from 0 to 85 five by five) :\n"))
-	print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper()), "people aged", age, "to", age + 9, "years in", com_dep[0].upper(), "\n")
+	print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper())[0], "(", statistic.pop_stats(year, age, com_dep[0].upper())[1], "women &", statistic.pop_stats(year, age, com_dep[0].upper())[2], "man ) aged", age, "to", age + 9, "years in", com_dep[0].upper(), "\n")
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

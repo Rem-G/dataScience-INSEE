@@ -29,4 +29,4 @@ class Statistic():
 				sum_women += float(str(row[0])) + float(str(row[2]))
 				sum_men += float(str(row[1])) + float(str(row[3]))
 
-		return(int(sum_women) + int(sum_men))
+		return(int(sum_women) + int(sum_men), int(sum_women), int(sum_men))
