@@ -59,7 +59,7 @@ class Data():
 			columns = df.columns[2:]
 
 			for index, row in rows:
-				print('Table', sheet, 'Done', round((cpt/len(df.index))*100, 2), '%', 'Total done', round( ( (cpt + len(df.index)*com_dates.index(sheet))/ (len(df.index)*len(com_dates)) )*100, 2), '%', end='\r')
+				print(str(filename).split("/")[::-1][0], 'Table', sheet, 'Done', round((cpt/len(df.index))*100, 2), '%', 'Total done', round( ( (cpt + len(df.index)*com_dates.index(sheet))/ (len(df.index)*len(com_dates)) )*100, 2), '%', end='\r')
 				cpt += 1
 
 				if index > 0:
