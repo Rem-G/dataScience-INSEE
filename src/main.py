@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import requests
 import json
 import zipfile
@@ -17,7 +17,8 @@ def auth_api(url):
 	return response
 
 def user_request():
-	path_communes_fusion = str(Path(os.getcwd()).parent) + "/data/laposte_commnouv.csv"
+	parent_dir = Path(os.getcwd()).parent
+	path_communes_fusion = Path.joinpath(parent_dir, "data", "laposte_commnouv.csv")
 	data_communes_fusion = pd.read_csv(path_communes_fusion, sep=';')
 	df_communes_fusion = pd.DataFrame(data_communes_fusion, columns = ['Prise en compte', 'Code INSEE Commune Nouvelle', 'Code INSEE Commune Déléguée (non actif)'])
 
@@ -85,33 +86,31 @@ def user_request():
 def main(dbreset = False):
 	data = Data()
 	statistic = Statistic()
-	parent_dir = str(Path(os.getcwd()).parent)
+	parent_dir = Path(os.getcwd()).parent
 
 	if dbreset:
 		print("###############")
 		print("Reset databases")
 		print("############### \n")
 
-		print("This operation may take several hours\n")
+		print("This operation may take a while\n")
 		if input("Reset databases ? y/n : ").lower() == "n":
 			dbreset = False
 
-	if dbreset or not os.path.isfile(parent_dir + "/data/population_1968-2016.db"):
+	if dbreset or not Path.joinpath(parent_dir, "data", "population_1968-2016.db").is_file():
+		if not Path.joinpath(parent_dir, "data", "pop-sexe-age-quinquennal6816.xls").is_file():
+			with zipfile.ZipFile(Path.joinpath(parent_dir, "data", "pop-sexe-age-quinquennal6816.xls.zip"), 'r') as zip_ref:
+				zip_ref.extractall(Path.joinpath(parent_dir, "data"))
 
-		if not os.path.isfile(parent_dir + "/data/pop-sexe-age-quinquennal6816.xls"):
-			with zipfile.ZipFile(parent_dir + "/data/pop-sexe-age-quinquennal6816.xls.zip", 'r') as zip_ref:
-				zip_ref.extractall(parent_dir + "/data")
+		data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
+		#data.add_columns(parent_dir + "/data/population_1968-2016.db")
 
-		#data.create_db(True, "pop-sexe-age-quinquennal6816.xls")
-		data.add_columns(parent_dir + "/data/population_1968-2016.db")
+	if dbreset or not Path.joinpath(parent_dir, "data", "population_social_categories_1968-2016.db").is_file():
+		if not Path.joinpath(parent_dir, "data", "pop-socialcategories.xls").is_file():
+			with zipfile.ZipFile(Path.joinpath(parent_dir, "data", "pop-socialcategories.xls.zip"), 'r') as zip_ref:
+				zip_ref.extractall(Path.joinpath(parent_dir, "data"))
 
-	if dbreset or not os.path.isfile(parent_dir + "/data/population_social_categories_1968-2016.db"):
-
-		if not os.path.isfile(parent_dir + "/data/pop-socialcategories.xls"):
-			with zipfile.ZipFile(parent_dir + "/data/pop-socialcategories.xls.zip", 'r') as zip_ref:
-				zip_ref.extractall(parent_dir + "/data")
-
-		#data.create_db(False, "pop-socialcategories.xls")
+		data.create_db(False, "pop-socialcategories.xls")
 
 	com_dep = user_request()
 	population = data.read_db_population(parent_dir + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
