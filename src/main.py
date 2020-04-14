@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 import requests
 import json
 import zipfile
