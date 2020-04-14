@@ -14,11 +14,13 @@ class Data():
 		db_type True : db_population
 		db_type False : db_socialcategories
 		"""
-		path_excel = str(Path(os.getcwd()).parent) + "/data/" + origine
+		parent_dir = Path(os.getcwd()).parent
+		path_excel = Path.joinpath(parent_dir, "data", origine)
 		com_dates = ["COM_1968", "COM_1975", "COM_1982", "COM_1990", "COM_1999", "COM_2006", "COM_2011", "COM_2016"]
 
 		if db_type:
-			filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
+			filename = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
+			#filename = str(Path(parent_dir + "/data/population_1968-2016.db"))
 			try:
 				os.remove(filename)
 			except:
@@ -27,7 +29,9 @@ class Data():
 			skiprows = range(12)
 			usecols = "E:AT"
 		else:
-			filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+			filename = Path.joinpath(parent_dir, "data", "population_social_categories_1968-2016.db")
+
+			#filename = str(Path(parent_dir + "/data/population_social_categories_1968-2016.db"))
 			try:
 				os.remove(filename)
 			except:
@@ -60,10 +64,10 @@ class Data():
 
 				if index > 0:
 					for column in columns:
-							if "Femmes" in column:
-								row_pop_women += float(row[column])
-							elif "Hommes" in column:
-								row_pop_men += float(row[column])
+						if "Femmes" in column:
+							row_pop_women += float(row[column])
+						elif "Hommes" in column:
+							row_pop_men += float(row[column])
 
 					row_pop = row_pop_men + row_pop_women
 					df.loc[index, 'pop_men'] = row_pop_men
