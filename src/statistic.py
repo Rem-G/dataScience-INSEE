@@ -55,3 +55,44 @@ class Statistic():
 					sum_men += float(str(row[1])) + float(str(row[3]))
 
 		return(int(sum_women) + int(sum_men), int(sum_women), int(sum_men))
+
+	def category_soc_pro(self, year, city):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+		result = {}
+		columns = [row[0] for row in cursor.execute("SELECT name FROM PRAGMA_TABLE_INFO('"+ table + "')")]
+
+		for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+			for i in range(len(row)):
+				if row[i] != 'None':
+					result[columns[i]] = row[i]
+
+		return result
+
+	def category_soc_pro_dep(self, year, city):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+		dep = self.category_soc_pro(year, city)['Departement_en_geographie_2018']
+		columns = [row[0] for row in cursor.execute("SELECT name FROM PRAGMA_TABLE_INFO('" + table + "')")]
+		result = {}
+
+		for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Departement_en_geographie_2018 LIKE " + dep):
+			for i in range(2, len(row)):
+				if row[i] != 'None' or row[i] is not None:
+					if columns[i] in result.keys():
+						result[columns[i]] += float(str(row[i]).replace('None', '0'))
+					else:
+						result[columns[i]] = float(str(row[i]).replace('None', '0'))
+
+		max_key = max(result, key = result.get)
+		max_value = int(max(result.values()))
+
+		return max_key, max_value

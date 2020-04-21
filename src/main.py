@@ -53,7 +53,7 @@ def user_request():
 		if proposition:
 			user_validation = input("\nIs it the right place ? y/n\n")
 		else:
-			print("Any city found for ", request)
+			print("No city named", request, " has been found")
 
 		if user_validation.lower() == 'y':
 			validation = True
@@ -129,6 +129,24 @@ def main(dbreset = False):
 	print("For the women, it's the", age_group[1][1], "to", age_group[1][2], "age group that is the most represented that year in", com_dep[0].upper(), "with", age_group[1][0], "women.")
 	print("As for the men, the", age_group[2][1], "to", age_group[2][2], "age group is the most represented with", age_group[2][0], "men.\n")
 
+	print("Socio-professional categories and their number of people in", com_dep[0].upper(), ":\n")
+	result_soc_pro = statistic.category_soc_pro(year, com_dep[0].upper())
+	columns = [key for key in statistic.category_soc_pro(year, com_dep[0].upper()).keys()]
+	for key_index in range(2, len(columns)):
+		print(str(columns[key_index])[:-7], ":", result_soc_pro[columns[key_index]])
+
+	dep = result_soc_pro['Departement_en_geographie_2018']
+	if int(dep[-1]) == 1:
+		end = 'st'
+	elif int(dep[-1]) == 2:
+		end = 'nd'
+	elif int(dep[-1]) == 3:
+		end = 'rd'
+	else:
+		end = 'th'
+	result_soc_pro_dep = statistic.category_soc_pro_dep(year, com_dep[0].upper())
+	print("\nIn the", dep + end, "department, the most represented socio-professional category is : '" + str(result_soc_pro_dep[0])[:-7] + "' with", result_soc_pro_dep[1], "people.")
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
@@ -138,8 +156,3 @@ if __name__ == '__main__':
 		main(dbreset = True)
 	else:
 		main()
-
-
-
-
-
