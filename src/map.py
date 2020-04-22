@@ -20,7 +20,7 @@ class map():
 			tiles = 'Stamen Terrain',
 			)
 
-	def get_dep(self):
+	def get_deps(self):
 		"""
 		"""
 		parent_dir = Path(os.getcwd()).parent
@@ -28,7 +28,7 @@ class map():
 
 		conn = sqlite3.connect(db)
 		c = conn.cursor()
-		c.execute("""SELECT Departement_en_geographie_2018 FROM COM_2016""")
+		c.execute("""SELECT Departement_en_geographie_2018 FROM COM_2016 WHERE Departement_en_geographie_2018 != 'DR18'""")
 		deps = c.fetchall()
 
 		deps_list = list()
@@ -61,7 +61,7 @@ class map():
 		"""
 		maison_response = list()
 		appartement_response = list()
-
+		type_local = None
 
 		for index, row in response.iterrows():
 			if not pd.isnull(response.loc[index, 'surface_reelle_bati']) and not pd.isnull(response.loc[index, 'valeur_fonciere']) and (row['type_local'] == 'Maison'):
@@ -72,8 +72,10 @@ class map():
 
 		if len(maison_response) > len(appartement_response):
 			type_local_response = maison_response
+			type_local = "Maison"
 		else:
 			type_local_response = appartement_response
+			type_local = "Appartement"
 
 		valeur = surface = mutations_nb = 0
 		for res in type_local_response:
@@ -87,112 +89,104 @@ class map():
 				surface += int(res['surface_reelle_bati'])
 
 		if valeur > 0 and surface > 0:
-			return {'m2': valeur/surface, 'prix_moy' : valeur/mutations_nb, 'surface_moy': surface/mutations_nb}    
+			return {'m2': valeur/surface, 'prix_moy' : valeur/mutations_nb, 'surface_moy': surface/mutations_nb, 'type_local': type_local}    
 
+	def html_scrapper(self, dep):
+		page = requests.get('https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/2019/communes/{}/'.format(dep))
+		soup = BeautifulSoup(page.text, 'html.parser')
+		scrap = soup.findAll('a', href = re.compile('\.csv$'))
+
+		return [file.getText().split(".")[0] for file in scrap]
+
+	def get_code_postal_insee(self, df):
+		try:
+			code_postal = df['code_postal'].iloc[0]
+			code_insee = df['code_commune'].iloc[0]
+
+			i = j = 0
+			if not isinstance(code_postal, str):
+				while np.isnan(code_postal):
+					i += 1
+					code_postal = df['code_postal'].iloc[i]
+				code_postal = str(int(code_postal))
+
+				if len(code_postal) == 4:#if dep begins with 0
+					code_postal = '0'+code_postal
+
+			if not isinstance(code_insee, str):
+				while np.isnan(code_insee):
+					j += 1
+					code_insee = df['code_commune'].iloc[j]
+				code_insee = str(int(code_insee))
+
+				if len(code_insee) == 4:
+					code_insee = '0'+code_insee
+
+			return [code_postal, code_insee]
+
+		except:
+			return [None]*2
+
+
+	def update_dvf_values(self, com, local_dvf_values, dvf_values, communes, cpt_codes, code_postal, code_insee):
+		"""
+		"""
+		if code_insee not in communes.keys():
+			for commune_code in communes.keys():
+
+				if code_postal in communes[commune_code]['properties']['codesPostaux']:
+					commune = communes[commune_code]
+					com = commune['properties']['code']
+					com_values = {'geometry': commune['geometry']}
+
+					if com in dvf_values.keys():
+						dvf_values[com]['valeur_locaux']['m2'] += local_dvf_values['m2']
+
+						dvf_values[com]['commune'] = commune['properties']['nom']
+					else:
+						com_values = {'geometry': commune['geometry']}
+
+						com_values['valeur_locaux'] = local_dvf_values
+						dvf_values[com] = com_values
+						dvf_values[com]['commune'] = commune['properties']['nom']
+
+					commune['properties']['codesPostaux'].remove(code_postal)
+					cpt_codes += 1
+
+					if not len(commune['properties']['codesPostaux']):
+						dvf_values[com]['valeur_locaux']['m2'] = dvf_values[com]['valeur_locaux']['m2']/cpt_codes
+						cpt_codes = 0
+		
+		else:
+			com_values = {'geometry': communes[code_insee]['geometry']}
+			com_values['valeur_locaux'] = local_dvf_values
+			dvf_values[com] = com_values
+			dvf_values[com]['commune'] = communes[code_insee]['properties']['nom']
+
+		return [dvf_values, cpt_codes]
 
 	def get_dvf(self, dep):
 		"""
 		"""
+		dvf_values = dict()
 		communes = self.get_communes(dep)
-		values = dict()
-		error = False
-
-		page = requests.get('https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/2019/communes/{}/'.format(dep))
-		soup = BeautifulSoup(page.text, 'html.parser')
-		scrap = soup.findAll('a', href = re.compile('\.csv$'))
-		communes_scrap = [file.getText().split(".")[0] for file in scrap]
-		
+		communes_scrap = self.html_scrapper(dep)
 		cpt_codes = 0
 
 		for com in communes_scrap:
-			error = False
-			print("Dep", dep, communes_scrap.index(com)+1, len(communes_scrap), end='\r')
+			print("Dep", dep, communes_scrap.index(com)+1, len(communes_scrap), "\n", end='\r')
 
 			url_csv = 'https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/2019/communes/{}/{}.csv'.format(dep, com)
 			df = pd.read_csv(url_csv)
 
-			try:
-				code_postal = df['code_postal'].iloc[0]
-				code_insee = df['code_commune'].iloc[0]
+			code_postal, code_insee = self.get_code_postal_insee(df)
 
-				while np.isnan(code_postal):
-					i += 1
-					code_postal = df['code_postal'].iloc[i]
+			if code_postal and code_insee:
+				local_dvf_values = self.get_valeur_local(df)
+				if local_dvf_values:
+					dvf_values, cpt_codes = self.update_dvf_values(com, local_dvf_values, dvf_values, communes, cpt_codes, code_postal, code_insee)
 
-				i = 0
-
-				while np.isnan(code_insee):
-					i += 1
-				code_insee = df['code_commune'].iloc[i]
-
-				code_postal = str(int(code_postal))
-				code_insee = str(int(code_insee))
-
-			except:
-				error = True
-
-			if not error:
-				valeur_local = self.get_valeur_local(df)
-
-				if valeur_local:
-					if code_insee not in communes.keys():
-						for commune_code in communes.keys():
-							commune = communes[commune_code]
-
-							if code_postal in commune['properties']['codesPostaux']:
-								com = commune['properties']['code']
-								valeurs = {'geometry': commune['geometry']}
-
-								if com in values.keys():
-									values[com]['valeur_locaux']['m2'] += valeur_local['m2']
-
-									values[com]['commune'] = commune['properties']['nom']
-								else:
-									valeurs = {'geometry': commune['geometry']}
-
-									valeurs['valeur_locaux'] = valeur_local
-									values[com] = valeurs
-									values[com]['commune'] = commune['properties']['nom']
-
-								commune['properties']['codesPostaux'].remove(code_postal)
-								cpt_codes += 1
-
-								if not len(commune['properties']['codesPostaux']):
-									values[com]['valeur_locaux']['m2'] = values[com]['valeur_locaux']['m2']/cpt_codes
-									cpt_codes = 0
-
-					
-					else:
-						valeurs = {'geometry': communes[code_insee]['geometry']}
-						valeurs['valeur_locaux'] = valeur_local
-						values[com] = valeurs
-						values[com]['commune'] = communes[code_insee]['properties']['nom']
-
-		return values
-
-
-
-		# for commune in communes:
-		#   print("Dep", dep, communes.index(commune), len(communes), end='\r')
-		#   valeurs = {'geometry': commune['geometry']}
-		#   com = commune['properties']['code']
-
-		#   url_csv = 'https://cadastre.data.gouv.fr/data/etalab-dvf/latest/csv/2019/communes/{}/{}.csv'.format(dep, com)
-
-		#   try:
-		#       df = pd.read_csv(url_csv)
-		#       error = False
-		#   except:
-		#       error = True#File not found
-
-		#   if not error:
-		#       valeur_local = self.get_valeur_local(df)
-		#       if valeur_local:
-		#           valeurs['valeur_locaux'] = valeur_local
-		#           values[com] = valeurs
-		#           values[com]['commune'] = commune['properties']['nom']
-
-
+		return dvf_values
 
 	def get_color(self, feature, data):
 		map_dict = data.set_index('code_com')['m2'].to_dict()
@@ -229,22 +223,21 @@ class map():
 				'weight' : 1,
 				},
 			)
-			folium.Popup("Commune : " + str(temp_feature['commune']) + "\n Prix m2 : " + str(int(map_dict[temp_feature['code_com']])) + "€").add_to(temp_layer)
 
+			html="""
+			    	<h4 style="font-family: Avenir, sans-serif;">Commune : </h4>
+			    	<p style="font-family: Avenir, sans-serif;">{}</p>
+			    	<h4 style="font-family: Avenir, sans-serif;">Type logement présent en plus grand nombre : </h4>
+			    	<p style="font-family: Avenir, sans-serif;">{}</p>
+			    	<h4 style="font-family: Avenir, sans-serif;">Prix moyen m2 : </h4>
+			    	<p style="font-family: Avenir, sans-serif;">{}€</p>
+			    """.format(str(temp_feature['commune']), temp_feature['properties']['type_local'], str(int(map_dict[temp_feature['code_com']])))
+
+			iframe = folium.IFrame(html=html, width=200, height=300)
+			folium.Popup(iframe, min_width=200).add_to(temp_layer)
 			temp_layer.add_to(self.osm_map)
-		LinearColormap(['white','red'], index=[val_min, 100*np.log(val_max)], vmin = val_min, vmax = 100*np.log(val_max)).add_to(self.osm_map)
 
-		# folium.Choropleth(
-		#    geo_data = geojson_data, # geoJSON file
-		#    name = 'choropleth',
-		#    data = data, # Pandas dataframe
-		#    columns=['code_com', 'm2'], # key and value of interest from the dataframe
-		#    key_on='feature.code_com', # key to link the json file and the dataframe
-		#    fill_color='blues', # colormap
-		#    fill_opacity=0,
-		#    line_opacity=0.2,
-		#    legend_name='Evolution prix m2'
-		# ).add_to(self.osm_map)
+		LinearColormap(['white','red'], index=[val_min, 100*np.log(val_max)], vmin = val_min, vmax = 100*np.log(val_max)).add_to(self.osm_map)
 
 	def create_map_dep(self, dep):
 		dvf_dep = self.get_dvf(dep)
@@ -263,7 +256,8 @@ class map():
 		data['m2'] = list()
 
 		for com in dvf_dep.keys():
-			feature = {'type' : 'Feature', 'commune': dvf_dep[com]['commune'], 'code_com': com, 'properties': {'name': com}}
+
+			feature = {'type' : 'Feature', 'commune': dvf_dep[com]['commune'], 'code_com': com, 'properties': {'name': com, 'type_local': dvf_dep[com]['valeur_locaux']['type_local']}}
 			feature['geometry'] = dvf_dep[com]['geometry']
 
 			geojson_collection['features'].append(feature)
@@ -283,14 +277,19 @@ class map():
 
 		self.osm_map.save(str(file))
 
+	def map_main(self, maps_reset = False):
+		deps = self.get_deps()
+		deps.remove("57")
+		deps.remove("67")
+		deps.remove("68")
+		#/!\ NO DVF DATA FOR DEPS 57, 67, 68 /!\
+		for dep in deps:
+			if maps_reset or not Path.joinpath(Path(os.getcwd()).parent, "static", "maps", "{}.html".format(dep)).is_file():
+				print((deps.index(dep)/len(deps))*100, ' %', '\n', end='\r')
+				print("DEPARTEMENT", dep)
+				self.create_map_dep(dep)
 
-m = map()
-deps = m.get_dep()
-for dep in deps:
-	print((deps.index(dep)/len(deps))*100, ' %', '\n', end='\r')
-	m.create_map_dep(dep)
-
-#m.create_map_dep(62)
+#m.create_map_dep("57")
 
 
 

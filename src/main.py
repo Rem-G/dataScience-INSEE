@@ -8,6 +8,7 @@ import argparse
 
 from data import *
 from statistic import *
+from map import *
 
 def auth_api(url):
 	token_auth = '0f045f2a33890a5e3b11911fff10efc9918c0785d7665299a8c8fa1d'
@@ -83,10 +84,12 @@ def user_request():
 
 	return [nom_com, dep_com]
 
-def main(dbreset = False):
+def main(dbreset, mapsreset):
 	data = Data()
 	statistic = Statistic()
 	parent_dir = Path(os.getcwd()).parent
+
+	m = map().map_main(mapsreset)
 
 	if dbreset:
 		print("###############")
@@ -150,9 +153,14 @@ def main(dbreset = False):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
+	parser.add_argument("--mapsreset", help="Reset stored maps", action="store_true")
 	args = parser.parse_args()
+	params = {'dbreset': False, 'mapsreset': False}
 
 	if args.dbreset:
-		main(dbreset = True)
-	else:
-		main()
+		params['dbreset'] = True
+
+	if args.mapsreset:
+		params['mapsreset'] = True
+
+	main(dbreset = params['dbreset'], mapsreset = params['mapsreset'])

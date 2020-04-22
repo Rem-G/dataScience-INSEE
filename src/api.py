@@ -2,7 +2,10 @@ import requests
 import json
 
 class DVF():
-	def __init__(self, code_insee):
+	def __init__(self):
+		self.code_insee = None
+
+	def set_code_insee(self, code_insee):
 		self.code_insee = code_insee
 
 	def auth_api(self, url):
@@ -26,7 +29,7 @@ class DVF():
 		type_local_response = list()
 
 		for x in response['resultats']:
-			if x['type_local'] and x['surface_relle_bati'] and x['valeur_fonciere']:
+			if x['surface_relle_bati'] and x['valeur_fonciere']:
 				type_local_response.append(x)
 
 		valeur = surface = mutations_nb = 0
@@ -42,22 +45,20 @@ class DVF():
 				surface += int(res['surface_relle_bati'])
 				mutations_nb+=1
 
-
-		return {'m2': valeur/surface, "prix_moy" : valeur/mutations_nb, "surface_moy": surface/mutations_nb}		
-
-
-api = DVF('74010')
-
-print("m2 maison terrain + bati", api.get_valeur_local('Maison', terrain=True))
-print("m2 maison bati", api.get_valeur_local('Maison'))
-print("m2 appartement terrain + bati", api.get_valeur_local('Appartement', terrain=True))
-print("m2 appartement bati", api.get_valeur_local('Appartement'))
-
-print("m2 commerce terrain + bati", api.get_valeur_local('Commerce', terrain=True, commerce=True))
-print("m2 appartement bati", api.get_valeur_local('Commerce', commerce=True))
+		return {'m2': valeur/surface, 'prix_moy' : valeur/mutations_nb, 'surface_moy': surface/mutations_nb}		
 
 
-#print("m2 commerce", api.get_valeur_local('Commerce'))
+api = DVF()
+api.set_code_insee('74010')
+
+print('m2 maison terrain + bati', api.get_valeur_local('Maison', terrain=True))
+print('m2 maison bati', api.get_valeur_local('Maison'))
+print('m2 appartement terrain + bati', api.get_valeur_local('Appartement', terrain=True))
+print('m2 appartement bati', api.get_valeur_local('Appartement'))
+
+print('m2 commerce terrain + bati', api.get_valeur_local('Commerce', terrain=True, commerce=True))
+print('m2 commerce bati', api.get_valeur_local('Commerce', commerce=True))
+
 
 
 
