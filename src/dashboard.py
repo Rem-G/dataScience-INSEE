@@ -30,7 +30,7 @@ def get_options():
 
 all_options = get_options()
 
-select_dep = dbc.Col([
+select_dep = [
 				dbc.Label('Départements :', style={'font-size':'15px'}),
 				dcc.Dropdown(
 					id = 'departements',
@@ -39,10 +39,10 @@ select_dep = dbc.Col([
 					value=['74'],
 					style={'color':'grey', 'font-size': '15px'},
 					placeholder='Départements'
-				),
-			])
+				)
+			]
 
-select_com = dbc.Col([
+select_com = [
 				dbc.Label('Communes :', style={'font-size':'15px'}),
 				dcc.Dropdown(
 					id = 'communes',
@@ -50,10 +50,10 @@ select_com = dbc.Col([
 					value=['Annecy'],
 					style={'color':'grey', 'font-size': '15px'},
 					placeholder='Communes'   
-				),
-			])
+				)
+			]
 
-select_year = dbc.Col([
+select_year = [
 				dbc.Label('Années :', style={'font-size':'15px'}),
 				dcc.Dropdown(
 					id = 'years',
@@ -61,47 +61,55 @@ select_year = dbc.Col([
 					options=[{'label': year, 'value': year} for year in years],
 					style={'color':'grey', 'font-size': '15px'},
 					placeholder='Années'   
+				)]
+
+select_indicator = [
+				dbc.Label('Indicateurs :', style={'font-size':'15px'}),
+				dcc.Dropdown(
+					id = 'indicators',
+					multi=True,
+					options=[{'label': year, 'value': year} for year in years],
+					style={'color':'grey', 'font-size': '15px'},
+					placeholder='Indicateurs'   
+				)]                   
+
+navbar = dbc.Navbar([
+				# Use row and col to control vertical alignment of logo / brand
+				dbc.Row(
+					[
+						dbc.Col(html.Img(src='/static/logo_polytech.png', height="50px")),
+						dbc.Col(dbc.NavbarBrand("Insee Dashboard", className="col-1")),
+						dbc.Col(select_dep, className="col-2 ml-4"),
+						dbc.Col(select_com, className="col-2 ml-4"),
+						dbc.Col(select_year, className="col-2 ml-4"),
+						dbc.Col(select_indicator, className="col-2 ml-4"),
+					],
+					align='center',
+					no_gutters=True,
+    				className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
+    				style={'width': '100%'}
 				),
-			])                      
+		], sticky='top', color="transparent")
 
-navbar = dbc.Navbar(
-	[
-		# Use row and col to control vertical alignment of logo / brand
-		dbc.Row(
-			[
-				dbc.Col(html.Img(src='/static/logo_polytech.png', height="45px")),
-				dbc.Col(dbc.NavbarBrand("Insee Dashboard", className="ml-2")),
-			],
-			align="center",
-			no_gutters=True,
-		),
-		select_dep,
-		select_com,
-		select_year,
-	],
-	sticky='top',
-)
+body = dbc.Row([
+			dbc.Col(html.Div(id='map')),
+			dbc.Col(
+				dbc.Card([
+					dcc.Graph(id='graph-evolution-pop', style={'border-radius':'0.5em'}),
+				], style={'border-radius':'0.5em', 'width': '100%'})
+			)
+		])
 
-body = dbc.Container([
+app.layout = html.Div([
+		dbc.Container([
 			dbc.Card([
 				dbc.CardBody([
-					dbc.Row([
-						dbc.Card(
-							id='map',
-							style={'width': '100%'}
-						)
-					]),
-					dbc.Row([
-						dbc.Card([
-							dcc.Graph(id='graph-evolution-pop', style={'border-radius':'0.5em'}),
-						], style={'border-radius':'0.5em', 'width': '100%'})
-					])
+					navbar,
+					body
 				])
-			], className='indicateurs_card')
+			], style={'background-color': '#F4F4F4'})
 		], fluid=True)
-	
-
-app.layout = html.Div([navbar, body])
+	], className='mt-1')
 
 @app.callback(
 	dash.dependencies.Output('map', 'children'),
@@ -109,7 +117,7 @@ app.layout = html.Div([navbar, body])
 
 def update_map(selector):
 	if len(selector):
-		return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='400', style={'border-radius':'0.5em'})
+		return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='450', style={'border-radius':'0.5em'})
 
 @app.callback(
 	dash.dependencies.Output('communes', 'options'),
@@ -128,7 +136,6 @@ def communes_options(selected_dep):
 
 def update_graph_evolution_pop(selected_commune):
 	traces = list()
-
 	all_period = dict()
 
 	for commune in selected_commune:
@@ -155,12 +162,14 @@ def update_graph_evolution_pop(selected_commune):
 
 	all_period_years = list(all_period.keys())
 	all_period_pop = list(all_period.values())
+	legend_title = selected_commune[0]
 
 	if len(selected_commune) > 1:
+		legend_title = ", ".join(selected_commune[0:2])+"..."
 		traces.append(dict(
 			x = all_period_years,
 			y = all_period_pop,
-			name = " ".join(selected_commune),
+			name = legend_title,
 			marker = dict(size = '10', color = 'red'),
 			)
 		)
@@ -168,10 +177,11 @@ def update_graph_evolution_pop(selected_commune):
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			title = "Evolution de la population de {} de {} à {}".format(", ".join(selected_commune), min(years), max(years)),
+			title = "Evolution de la population de {} de {} à {}".format(legend_title, min(years), max(years)),
 			xaxis = {'title': 'Année'},
 			yaxis = {'title': 'Population'},
 			hovermode = 'closest',
+			legend=dict(orientation="h", y=-0.2)
 		),
 	}
 
