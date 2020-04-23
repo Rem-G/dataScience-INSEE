@@ -129,6 +129,8 @@ def communes_options(selected_dep):
 def update_graph_evolution_pop(selected_commune):
 	traces = list()
 
+	all_period = dict()
+
 	for commune in selected_commune:
 		population_years = s.get_pop_all_period(commune)
 
@@ -138,6 +140,11 @@ def update_graph_evolution_pop(selected_commune):
 			x_years.append(int(year))
 			y_pop.append(int(pop))
 
+			if year in all_period.keys():
+				all_period[year] += int(pop)
+			else:
+				all_period[year] = int(pop)
+
 		traces.append(dict(
 			x = x_years,
 			y = y_pop,
@@ -145,10 +152,23 @@ def update_graph_evolution_pop(selected_commune):
 			marker = dict(size = '10', color = 'rgb(55, 83, 109)'),
 			)
 		)
+
+	all_period_years = list(all_period.keys())
+	all_period_pop = list(all_period.values())
+
+	if len(selected_commune) > 1:
+		traces.append(dict(
+			x = all_period_years,
+			y = all_period_pop,
+			name = " ".join(selected_commune),
+			marker = dict(size = '10', color = 'red'),
+			)
+		)
+
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			title = "Evolution de la population de {} de {} à {}".format(" ".join(selected_commune), min(years), max(years)),
+			title = "Evolution de la population de {} de {} à {}".format(", ".join(selected_commune), min(years), max(years)),
 			xaxis = {'title': 'Année'},
 			yaxis = {'title': 'Population'},
 			hovermode = 'closest',
