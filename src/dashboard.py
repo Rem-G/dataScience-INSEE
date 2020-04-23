@@ -107,7 +107,7 @@ app.layout = html.Div([
 					navbar,
 					body
 				])
-			], style={'background-color': '#F4F4F4'})
+			], style={'background-color': '#F8F8FF'})
 		], fluid=True)
 	], className='mt-1')
 
@@ -177,7 +177,7 @@ def update_graph_evolution_pop(selected_commune):
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			title = "Evolution de la population de {} de {} à {}".format(legend_title, min(years), max(years)),
+			title = "Evolution de la population à {} de {} à {}".format(legend_title, min(years), max(years)),
 			xaxis = {'title': 'Année'},
 			yaxis = {'title': 'Population'},
 			hovermode = 'closest',
