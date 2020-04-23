@@ -45,11 +45,11 @@ class Statistic():
 		population_all_period = dict()
 
 		for table in tables:
-			sql = "SELECT population FROM {} WHERE Libelle_de_commune = '{}'".format(table[0], commune)
+			sql = 'SELECT population FROM {} WHERE Libelle_de_commune = "{}"'.format(table[0], commune)
 			c.execute(sql)
-			result = c.fetchall()[0][0]
-			if result is not None:
-				population_all_period[table[0].split("_")[1]] = int(result)
+			result = c.fetchall()
+			if len(result) and result[0][0] is not None:
+				population_all_period[table[0].split("_")[1]] = int(result[0][0])
 
 		return population_all_period
 

@@ -30,80 +30,86 @@ def get_options():
 
 all_options = get_options()
 
-body = dbc.Container([
-		dbc.Row([
-			dbc.Col([
-				dbc.Card([
-					dbc.CardHeader(
-						html.H4('Insee Dashboard', style={'margin': 'auto'})
-						),
-					dbc.CardBody(
-						html.Img(src='/static/logo_polytech.png',  style={'width':'98%', 'margin': 'auto'}),
-						)
-				], className='vertical_card'),
-				html.Br(),
-				dbc.Card([
-					dbc.CardHeader(
-						html.P('Choix territoire', style={'margin': 'auto'})
-						),
-					dbc.CardBody(
-						dbc.Row([
-							dbc.Col([
-								dbc.Label('Département :', html_for='departements', style={'font-size':'15px'}),
-								dcc.Dropdown(
-									id = 'departements',
-									options=[{'label': dep, 'value': dep} for dep in all_options.keys()],
-									multi=True,
-									value=['74'],
-									style={'color':'grey'}                            
-								),
-
-								dbc.Label('Commune :', html_for='communes', style={'font-size':'15px'}),
-								dcc.Dropdown(
-									id = 'communes',
-									multi=True,
-									value=['Annecy'],
-									style={'color':'grey'}                            
-								)
-							])
-						])
-					)
-				], className='vertical_card selection_territoire'),
-			], width=2, className='colonne_vertical_card'),
-
-			dbc.Col([
-				dbc.Card([
-					dbc.CardBody([
-							dbc.Row([
-								dbc.Col([
-									dbc.Card(
-										id='carte',
-										style={
-											'border-radius':'0.5em'
-										}
-									)
-								], style={"width": "100%"},)
-							]),
-							dbc.Row([
-								dbc.Col([
-									dcc.Graph(id='graph-evolution-pop'),
-								])
-							])
-						])
-					], className='indicateurs_card')
-				], className='colonne_indicateurs_card')
+select_dep = dbc.Col([
+				dbc.Label('Départements :', style={'font-size':'15px'}),
+				dcc.Dropdown(
+					id = 'departements',
+					options=[{'label': dep, 'value': dep} for dep in all_options.keys()],
+					multi=True,
+					value=['74'],
+					style={'color':'grey', 'font-size': '15px'},
+					placeholder='Départements'
+				),
 			])
-	], fluid=True)
+
+select_com = dbc.Col([
+				dbc.Label('Communes :', style={'font-size':'15px'}),
+				dcc.Dropdown(
+					id = 'communes',
+					multi=True,
+					value=['Annecy'],
+					style={'color':'grey', 'font-size': '15px'},
+					placeholder='Communes'   
+				),
+			])
+
+select_year = dbc.Col([
+				dbc.Label('Années :', style={'font-size':'15px'}),
+				dcc.Dropdown(
+					id = 'years',
+					multi=True,
+					options=[{'label': year, 'value': year} for year in years],
+					style={'color':'grey', 'font-size': '15px'},
+					placeholder='Années'   
+				),
+			])                      
+
+navbar = dbc.Navbar(
+	[
+		# Use row and col to control vertical alignment of logo / brand
+		dbc.Row(
+			[
+				dbc.Col(html.Img(src='/static/logo_polytech.png', height="45px")),
+				dbc.Col(dbc.NavbarBrand("Insee Dashboard", className="ml-2")),
+			],
+			align="center",
+			no_gutters=True,
+		),
+		select_dep,
+		select_com,
+		select_year,
+	],
+	sticky='top',
+)
+
+body = dbc.Container([
+			dbc.Card([
+				dbc.CardBody([
+					dbc.Row([
+						dbc.Card(
+							id='map',
+							style={'width': '100%'}
+						)
+					]),
+					dbc.Row([
+						dbc.Card([
+							dcc.Graph(id='graph-evolution-pop', style={'border-radius':'0.5em'}),
+						], style={'border-radius':'0.5em', 'width': '100%'})
+					])
+				])
+			], className='indicateurs_card')
+		], fluid=True)
 	
 
-app.layout = html.Div([body])
+app.layout = html.Div([navbar, body])
 
 @app.callback(
-	dash.dependencies.Output('carte', 'children'),
+	dash.dependencies.Output('map', 'children'),
 	[dash.dependencies.Input('departements', 'value')])
 
-def update_carte(selector):
-	return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='400', style={'border-radius':'0.5em'})
+def update_map(selector):
+	if len(selector):
+		return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='400', style={'border-radius':'0.5em'})
 
 @app.callback(
 	dash.dependencies.Output('communes', 'options'),
@@ -142,7 +148,7 @@ def update_graph_evolution_pop(selected_commune):
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			title = "Evolution de la population de {} de {} à {}".format(selected_commune, min(years), max(years)),
+			title = "Evolution de la population de {} de {} à {}".format(" ".join(selected_commune), min(years), max(years)),
 			xaxis = {'title': 'Année'},
 			yaxis = {'title': 'Population'},
 			hovermode = 'closest',
