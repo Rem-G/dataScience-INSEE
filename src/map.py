@@ -12,11 +12,11 @@ from branca.colormap import *
 import re
 
 
-class map():
+class MapDVF():
 	def OSM_init(self, coordinates):
 		self.osm_map = folium.Map(
 			location = coordinates,
-			zoom_start = 10,
+			zoom_start = 8,
 			tiles = 'Stamen Terrain',
 			)
 
@@ -226,14 +226,14 @@ class map():
 
 			html="""
 			    	<h4 style="font-family: Avenir, sans-serif;">Commune : </h4>
-			    	<p style="font-family: Avenir, sans-serif;">{}</p>
-			    	<h4 style="font-family: Avenir, sans-serif;">Type logement présent en plus grand nombre : </h4>
-			    	<p style="font-family: Avenir, sans-serif;">{}</p>
+			    	<span style="font-family: Avenir, sans-serif;">{}</span>
+			    	<h4 style="font-family: Avenir, sans-serif;">Type logement : </h4>
+			    	<span style="font-family: Avenir, sans-serif;">{}</span>
 			    	<h4 style="font-family: Avenir, sans-serif;">Prix moyen m2 : </h4>
-			    	<p style="font-family: Avenir, sans-serif;">{}€</p>
+			    	<span style="font-family: Avenir, sans-serif;">{}€</span>
 			    """.format(str(temp_feature['commune']), temp_feature['properties']['type_local'], str(int(map_dict[temp_feature['code_com']])))
 
-			iframe = folium.IFrame(html=html, width=200, height=300)
+			iframe = folium.IFrame(html=html, width=150, height=250)
 			folium.Popup(iframe, min_width=200).add_to(temp_layer)
 			temp_layer.add_to(self.osm_map)
 

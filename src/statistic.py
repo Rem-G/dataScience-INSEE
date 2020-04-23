@@ -4,6 +4,63 @@ import sqlite3
 
 class Statistic():
 
+	def __init__(self):
+		parent_dir = Path(os.getcwd()).parent
+		self.db = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
+
+	def get_deps(self):
+		parent_dir = Path(os.getcwd()).parent
+		db = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
+
+		conn = sqlite3.connect(db)
+		c = conn.cursor()
+		c.execute("""SELECT Departement_en_geographie_2018 FROM COM_2016 WHERE Departement_en_geographie_2018 != 'DR18'""")
+		deps = c.fetchall()
+
+		deps_list = list()
+
+		for dep in set(deps):
+			deps_list.append(dep[0])
+
+		return deps_list
+
+
+	def get_communes(self, dep):
+		parent_dir = Path(os.getcwd()).parent
+		db = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
+
+		conn = sqlite3.connect(db)
+		c = conn.cursor()
+		c.execute("""SELECT Libelle_de_commune FROM COM_2016 WHERE Departement_en_geographie_2018 == '{}'""".format(dep))
+		communes = c.fetchall()
+
+		return communes
+
+	def get_pop_all_period(self, commune):
+		conn = sqlite3.connect(self.db)
+		c = conn.cursor()
+		c.execute("""SELECT name FROM sqlite_master WHERE type = 'table'""")
+		tables = c.fetchall()
+
+		population_all_period = dict()
+
+		for table in tables:
+			sql = "SELECT population FROM {} WHERE Libelle_de_commune = '{}'".format(table[0], commune)
+			c.execute(sql)
+			result = c.fetchall()[0][0]
+			if result is not None:
+				population_all_period[table[0].split("_")[1]] = int(result)
+
+		return population_all_period
+
+	def get_years(self):
+		conn = sqlite3.connect(self.db)
+		c = conn.cursor()
+		c.execute("""SELECT name FROM sqlite_master WHERE type = 'table'""")
+		tables = c.fetchall()
+
+		return [int(table[0].split('_')[1]) for table in tables]
+
 	def get_largest_age_group(self, year, city):
 
 		age_group = [0, 0, 0] # population, age_start, age_end

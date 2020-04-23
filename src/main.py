@@ -89,7 +89,7 @@ def main(dbreset, mapsreset):
 	statistic = Statistic()
 	parent_dir = Path(os.getcwd()).parent
 
-	m = map().map_main(mapsreset)
+	m = MapDVF().map_main(mapsreset)
 
 	if dbreset:
 		print("###############")
