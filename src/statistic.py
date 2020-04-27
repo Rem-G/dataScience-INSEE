@@ -12,7 +12,7 @@ class Statistic():
 		parent_dir = Path(os.getcwd()).parent
 		db = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
 
-		conn = sqlite3.connect(db)
+		conn = sqlite3.connect(self.db)
 		c = conn.cursor()
 		c.execute("""SELECT Departement_en_geographie_2018 FROM COM_2016 WHERE Departement_en_geographie_2018 != 'DR18'""")
 		deps = c.fetchall()
@@ -29,7 +29,7 @@ class Statistic():
 		parent_dir = Path(os.getcwd()).parent
 		db = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
 
-		conn = sqlite3.connect(db)
+		conn = sqlite3.connect(self.db)
 		c = conn.cursor()
 		c.execute("""SELECT Libelle_de_commune FROM COM_2016 WHERE Departement_en_geographie_2018 == '{}'""".format(dep))
 		communes = c.fetchall()
