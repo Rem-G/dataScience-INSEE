@@ -112,9 +112,14 @@ def main(dbreset, mapsreset):
 		data.create_db(False, "pop-socialcategories.xls")
 		data.add_departement()
 
+
+	if mapsreset or not Path.joinpath(parent_dir, "static", "maps").is_folder():
+		with zipfile.ZipFile(Path.joinpath(parent_dir, "static", "maps.zip"), 'r') as zip_ref:
+			zip_ref.extractall(Path.joinpath(parent_dir, "static"))
+
 	m = MapDVF().map_main(mapsreset)
 
-	import dashboard#run dashboard
+	#import dashboard#run dashboard
 
 	######################################################################################
 	######################################################################################
@@ -131,52 +136,52 @@ def main(dbreset, mapsreset):
 	# data.add_departement()
 	# A décommenter si la table 'Departement' de la base 'population_social_categories_1968-2016.db' n'est pas créée.
 
-	com_dep = user_request()
-	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
-	print(population, "POPULATION")
+# 	com_dep = user_request()
+# 	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
+# 	print(population, "POPULATION")
 
-	year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
-	age = int(input("\nChoose a starting age (from 0 to 90 five by five) :\n"))
-	if age == 90:
-		print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper())[0], "(", statistic.pop_stats(year, age, com_dep[0].upper())[1], "women &", statistic.pop_stats(year, age, com_dep[0].upper())[2], "man ) aged", age, "or more in", com_dep[0].upper(), "\n")
+# 	year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
+# 	age = int(input("\nChoose a starting age (from 0 to 90 five by five) :\n"))
+# 	if age == 90:
+# 		print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper())[0], "(", statistic.pop_stats(year, age, com_dep[0].upper())[1], "women &", statistic.pop_stats(year, age, com_dep[0].upper())[2], "man ) aged", age, "or more in", com_dep[0].upper(), "\n")
 
-	else :
-		print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper())[0], "(", statistic.pop_stats(year, age, com_dep[0].upper())[1], "women &", statistic.pop_stats(year, age, com_dep[0].upper())[2], "man ) aged", age, "to", age + 9, "years in", com_dep[0].upper(), "\n")
+# 	else :
+# 		print("\nIn", year, "there was", statistic.pop_stats(year, age, com_dep[0].upper())[0], "(", statistic.pop_stats(year, age, com_dep[0].upper())[1], "women &", statistic.pop_stats(year, age, com_dep[0].upper())[2], "man ) aged", age, "to", age + 9, "years in", com_dep[0].upper(), "\n")
 
-	age_group = statistic.get_largest_age_group(year, com_dep[0].upper())
-	print("The", age_group[0][1], "to", age_group[0][2], "age group is the most represented in", year, "in", com_dep[0].upper(), "with", age_group[0][0], "people.")
-	print("For the women, it's the", age_group[1][1], "to", age_group[1][2], "age group that is the most represented that year in", com_dep[0].upper(), "with", age_group[1][0], "women.")
-	print("As for the men, the", age_group[2][1], "to", age_group[2][2], "age group is the most represented with", age_group[2][0], "men.\n")
+# 	age_group = statistic.get_largest_age_group(year, com_dep[0].upper())
+# 	print("The", age_group[0][1], "to", age_group[0][2], "age group is the most represented in", year, "in", com_dep[0].upper(), "with", age_group[0][0], "people.")
+# 	print("For the women, it's the", age_group[1][1], "to", age_group[1][2], "age group that is the most represented that year in", com_dep[0].upper(), "with", age_group[1][0], "women.")
+# 	print("As for the men, the", age_group[2][1], "to", age_group[2][2], "age group is the most represented with", age_group[2][0], "men.\n")
 
-	print("Socio-professional categories and their number of people in", com_dep[0].upper(), ":\n")
-	result_soc_pro = statistic.category_soc_pro(year, com_dep[0].upper())
-	columns = [key for key in statistic.category_soc_pro(year, com_dep[0].upper()).keys()]
-	for key_index in range(2, len(columns)):
-		print(str(columns[key_index])[:-7], ":", result_soc_pro[columns[key_index]])
+# 	print("Socio-professional categories and their number of people in", com_dep[0].upper(), ":\n")
+# 	result_soc_pro = statistic.category_soc_pro(year, com_dep[0].upper())
+# 	columns = [key for key in statistic.category_soc_pro(year, com_dep[0].upper()).keys()]
+# 	for key_index in range(2, len(columns)):
+# 		print(str(columns[key_index])[:-7], ":", result_soc_pro[columns[key_index]])
 
-	dep = result_soc_pro['Departement_en_geographie_2018']
-	if int(dep[-1]) == 1:
-		end = 'st'
-	elif int(dep[-1]) == 2:
-		end = 'nd'
-	elif int(dep[-1]) == 3:
-		end = 'rd'
-	else:
-		end = 'th'
-	result_soc_pro_dep = statistic.category_soc_pro_dep(year, com_dep[0].upper())
-	print("\nIn the", dep + end, "department, the most represented socio-professional category is : '" + str(result_soc_pro_dep[0])[:-7] + "' with", result_soc_pro_dep[1], "people.")
+# 	dep = result_soc_pro['Departement_en_geographie_2018']
+# 	if int(dep[-1]) == 1:
+# 		end = 'st'
+# 	elif int(dep[-1]) == 2:
+# 		end = 'nd'
+# 	elif int(dep[-1]) == 3:
+# 		end = 'rd'
+# 	else:
+# 		end = 'th'
+# 	result_soc_pro_dep = statistic.category_soc_pro_dep(year, com_dep[0].upper())
+# 	print("\nIn the", dep + end, "department, the most represented socio-professional category is : '" + str(result_soc_pro_dep[0])[:-7] + "' with", result_soc_pro_dep[1], "people.")
 
-if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
-	parser.add_argument("--mapsreset", help="Reset stored maps", action="store_true")
-	args = parser.parse_args()
-	params = {'dbreset': False, 'mapsreset': False}
+# if __name__ == '__main__':
+# 	parser = argparse.ArgumentParser()
+# 	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
+# 	parser.add_argument("--mapsreset", help="Reset stored maps", action="store_true")
+# 	args = parser.parse_args()
+# 	params = {'dbreset': False, 'mapsreset': False}
 
-	if args.dbreset:
-		params['dbreset'] = True
+# 	if args.dbreset:
+# 		params['dbreset'] = True
 
-	if args.mapsreset:
-		params['mapsreset'] = True
+# 	if args.mapsreset:
+# 		params['mapsreset'] = True
 
-	main(dbreset = params['dbreset'], mapsreset = params['mapsreset'])
+# 	main(dbreset = params['dbreset'], mapsreset = params['mapsreset'])

@@ -10,6 +10,8 @@ import flask
 
 from statistic import *
 
+import main
+
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 app.title = 'Insee Dashboard'
 app.config['suppress_callback_exceptions']=True
@@ -99,7 +101,7 @@ navbar = dbc.Navbar([
     				className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
     				style={'width': '100%'}
 				),
-		], sticky='bottom', color="transparent")
+		], sticky='top', color="transparent")
 
 body = html.Div([
 		dbc.Row([
