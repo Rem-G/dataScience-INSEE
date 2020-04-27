@@ -14,6 +14,13 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 app.title = 'Insee Dashboard'
 app.config['suppress_callback_exceptions']=True
 
+DEFAULT_PLOTLY_COLORS=['rgb(31, 119, 180)', 'rgb(255, 127, 14)',
+                       'rgb(44, 160, 44)', 'rgb(214, 39, 40)',
+                       'rgb(148, 103, 189)', 'rgb(140, 86, 75)',
+                       'rgb(227, 119, 194)', 'rgb(127, 127, 127)',
+                       'rgb(188, 189, 34)', 'rgb(23, 190, 207)']
+
+#tranches âge la plus représentée pour une année donnée (h, f, m), répartition pop catégorie socio-prof, nombre habitants, commerces
 
 #Intégration des static files
 parent_dir = Path(os.getcwd()).parent
@@ -89,16 +96,27 @@ navbar = dbc.Navbar([
     				className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
     				style={'width': '100%'}
 				),
-		], sticky='top', color="transparent")
+		], sticky='bottom', color="transparent")
 
-body = dbc.Row([
-			dbc.Col(html.Div(id='map')),
+body = html.Div([
+		dbc.Row([
+			dbc.Col(),#Cards
+			dbc.Col(html.Div(id='map'))
+		]),
+		dbc.Row([
 			dbc.Col(
 				dbc.Card([
 					dcc.Graph(id='graph-evolution-pop', style={'border-radius':'0.5em'}),
 				], style={'border-radius':'0.5em', 'width': '100%'})
+			),
+			dbc.Col(
+				dbc.Card([
+					dcc.Graph(id='graph-evolution-soc-pro', style={'border-radius':'0.5em'}),
+				], style={'border-radius':'0.5em', 'width': '100%'})
 			)
 		])
+	])
+
 
 app.layout = html.Div([
 		dbc.Container([
@@ -117,7 +135,10 @@ app.layout = html.Div([
 
 def update_map(selector):
 	if len(selector):
-		return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='450', style={'border-radius':'0.5em'})
+		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
+			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='450', style={'border-radius':'0.5em'})
+		else:
+			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='450', style={'border-radius':'0.5em'})
 
 @app.callback(
 	dash.dependencies.Output('communes', 'options'),
@@ -143,20 +164,44 @@ def update_graph_evolution_pop(selected_commune):
 
 		x_years = list()
 		y_pop = list()
+		y_pop_men = list()
+		y_pop_women = list()
+
 		for year, pop in population_years.items():
 			x_years.append(int(year))
-			y_pop.append(int(pop))
+
+			y_pop.append(int(pop[0]))
+			y_pop_men.append(int(pop[1]))
+			y_pop_women.append(int(pop[2]))
 
 			if year in all_period.keys():
-				all_period[year] += int(pop)
+				all_period[year] += int(pop[0])+int(pop[1])+int(pop[2])
 			else:
-				all_period[year] = int(pop)
+				all_period[year] = int(pop[0])+int(pop[1])+int(pop[2])
 
 		traces.append(dict(
 			x = x_years,
 			y = y_pop,
-			name = commune,
+			name = commune+' Total',
 			marker = dict(size = '10', color = 'rgb(55, 83, 109)'),
+			)
+		)
+
+		traces.append(dict(
+			x = x_years,
+			y = y_pop_men,
+			name = commune+' Hommes',
+			marker = dict(size = '10', color = 'red'),
+			visible = 'legendonly'
+			)
+		)
+
+		traces.append(dict(
+			x = x_years,
+			y = y_pop_women,
+			name = commune+' Femmes',
+			marker = dict(size = '10', color = 'blue'),
+			visible = 'legendonly'
 			)
 		)
 
@@ -170,7 +215,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = all_period_years,
 			y = all_period_pop,
 			name = legend_title,
-			marker = dict(size = '10', color = 'red'),
+			marker = dict(size = '10', color = 'green'),
 			)
 		)
 
@@ -187,16 +232,88 @@ def update_graph_evolution_pop(selected_commune):
 
 	return figure
 
+def update_graph_evolution_soc_pro(selected_commune):
+	traces = list()
+	all_period = dict()
+	n = 0
+
+	for commune in selected_commune:
+		categories_soc_pro_commune_years = s.categories_soc_pro_commune(commune)
+		x_years = categories_soc_pro_commune_years['years']
+		y_pop = dict()
+		y_pop_unemployment = list()
+
+		for key, value in categories_soc_pro_commune_years['employment'].items():
+			if key.split('_Actifs_ayant_un_emploi')[0] in y_pop.keys():
+				y_pop[key.split('_Actifs_ayant_un_emploi')[0]].append(int(value))
+
+			else:
+				y_pop[key.split('_Actifs_ayant_un_emploi')[0]] = [int(value)]
+
+		for key, value in y_pop.items():
+			if n >= len(DEFAULT_PLOTLY_COLORS):
+				n = 0
+
+			traces.append(dict(
+				x = x_years,
+				y = value,
+				name = commune+' '+key,
+				marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[n]),
+				)
+			)
+
+			n += 1
+
+		for key, value in categories_soc_pro_commune_years['unemployment'].items():
+			y_pop_unemployment.append(int(value))
+
+		traces.append(dict(
+			x = x_years,
+			y = y_pop_unemployment,
+			name = commune+' Chomeurs',
+			marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[n]),
+			)
+		)
+		n += 1
+
+	all_period_years = list(all_period.keys())
+	all_period_pop = list(all_period.values())
+	legend_title = selected_commune[0]
+
+	if len(selected_commune) > 1:
+		legend_title = ", ".join(selected_commune[0:2])+"..."
+		traces.append(dict(
+			x = all_period_years,
+			y = all_period_pop,
+			name = legend_title,
+			marker = dict(size = '10', color = 'green'),
+			)
+		)
+
+	figure =  {
+		'data': traces,
+		'layout': dict(
+			title = "Evolution des catégories socio-profesionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
+			xaxis = {'title': 'Année'},
+			yaxis = {'title': 'Population'},
+			hovermode = 'closest',
+			legend=dict(orientation="h", y=-0.2)
+		),
+	}
+
+	return figure
+
 
 @app.callback([
 		dash.dependencies.Output('graph-evolution-pop', 'figure'),
+		dash.dependencies.Output('graph-evolution-soc-pro', 'figure'),
 	],
 	[
 		dash.dependencies.Input('communes', 'value'),
 	]
 	)
 def update_card(commune):
-	return [update_graph_evolution_pop(commune),]
+	return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune)]
 
-if __name__ == '__main__':
+if __name__ == 'dashboard':
 	app.run_server(debug=True)

@@ -61,7 +61,7 @@ class Data():
 				print(str(filename).split("/")[::-1][0], 'Table', sheet, 'Done', round((cpt/len(df.index))*100, 2), '%', 'Total done', round( ( (cpt + len(df.index)*com_dates.index(sheet))/ (len(df.index)*len(com_dates)) )*100, 2), '%', end='\r')
 				cpt += 1
 
-				if index > 0:
+				if index > 0 and db_type:
 					for column in columns:
 						if "Femmes" in column:
 							row_pop_women += float(row[column])

@@ -45,11 +45,11 @@ class Statistic():
 		population_all_period = dict()
 
 		for table in tables:
-			sql = 'SELECT population FROM {} WHERE Libelle_de_commune = "{}"'.format(table[0], commune)
+			sql = 'SELECT population, pop_men, pop_women FROM {} WHERE Libelle_de_commune = "{}"'.format(table[0], commune)
 			c.execute(sql)
 			result = c.fetchall()
 			if len(result) and result[0][0] is not None:
-				population_all_period[table[0].split("_")[1]] = int(result[0][0])
+				population_all_period[table[0].split("_")[1]] = result[0]
 
 		return population_all_period
 
@@ -130,7 +130,7 @@ class Statistic():
 
 		return result
 
-	def category_soc_pro_dep(self, year, city):
+	def category_soc_pro_max_dep(self, year, city):
 
 		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
 		conn = sqlite3.connect(filename)
@@ -153,3 +153,39 @@ class Statistic():
 		max_value = int(max(result.values()))
 
 		return max_key, max_value
+
+	def categories_soc_pro_commune(self, commune):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		cursor.execute("""SELECT name FROM sqlite_master WHERE type = 'table'""")
+		tables = cursor.fetchall()
+
+		result = {}
+		unemployment = {}
+
+		for table in tables:
+			columns = [row[0] for row in cursor.execute("SELECT name FROM PRAGMA_TABLE_INFO('" + table[0] + "')")]
+
+			for row in cursor.execute("SELECT * FROM " + table[0] + " WHERE " + table[0] + ".Libelle_de_commune LIKE '" + commune + "'"):
+				for i in range(2, len(row)):
+					if row[i] != 'None' or row[i] is not None:
+						if columns[i] in result.keys():
+							result[columns[i]] += float(str(row[i]).replace('None', '0'))
+						else:
+							result[columns[i]] = float(str(row[i]).replace('None', '0'))
+
+		unemployment = {}
+		employment = {}
+
+		for key in result.keys():
+			if 'chomeurs' in key.lower():
+				unemployment[key] = result[key]
+			else:
+				employment[key] = result[key]
+
+		return {'years': [table[0].split('_')[1] for table in tables], 'employment': employment, 'unemployment': unemployment}
+
+
