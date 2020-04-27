@@ -11,7 +11,7 @@ class Statistic():
 
 	def get_dep_name(self, dep):
 		parent_dir = Path(os.getcwd()).parent
-		db = Path.joinpath(parent_dir, "data", "population_social_categories_1968-2016.db")
+		db = str(Path.joinpath(parent_dir, "data", "population_social_categories_1968-2016.db"))
 
 		conn = sqlite3.connect(db)
 		c = conn.cursor()
