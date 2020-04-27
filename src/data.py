@@ -122,12 +122,12 @@ class Data():
 		dep_number = c.fetchall()
 		dep_number = dep_number[1:]
 
-		data = {'Code_departement' : [], 'Departement' : []}
+		data = {'Code_departement' : [], 'Libelle_dep' : []}
 		for dep in dep_number:
 			url = "https://geo.api.gouv.fr/departements/{}".format(dep[0])
 			result = requests.get(url).json()
 			data['Code_departement'].append(result['code'])
-			data['Departement'].append(result['nom'])
+			data['Libelle_dep'].append(result['nom'])
 
 		df = pd.DataFrame(data)
 		df.to_sql("Departement", conn, index=False, if_exists="replace")

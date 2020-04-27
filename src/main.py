@@ -113,7 +113,7 @@ def main(dbreset, mapsreset):
 		data.add_departement()
 
 
-	if mapsreset or not Path.joinpath(parent_dir, "static", "maps").is_folder():
+	if mapsreset or not Path.joinpath(parent_dir, "static", "maps").is_dir():
 		with zipfile.ZipFile(Path.joinpath(parent_dir, "static", "maps.zip"), 'r') as zip_ref:
 			zip_ref.extractall(Path.joinpath(parent_dir, "static"))
 
@@ -171,17 +171,17 @@ def main(dbreset, mapsreset):
 # 	result_soc_pro_dep = statistic.category_soc_pro_dep(year, com_dep[0].upper())
 # 	print("\nIn the", dep + end, "department, the most represented socio-professional category is : '" + str(result_soc_pro_dep[0])[:-7] + "' with", result_soc_pro_dep[1], "people.")
 
-# if __name__ == '__main__':
-# 	parser = argparse.ArgumentParser()
-# 	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
-# 	parser.add_argument("--mapsreset", help="Reset stored maps", action="store_true")
-# 	args = parser.parse_args()
-# 	params = {'dbreset': False, 'mapsreset': False}
+if __name__ == 'main':
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--dbreset", help="Reset databases", action="store_true")
+	parser.add_argument("--mapsreset", help="Reset stored maps", action="store_true")
+	args = parser.parse_args()
+	params = {'dbreset': False, 'mapsreset': False}
 
-# 	if args.dbreset:
-# 		params['dbreset'] = True
+	if args.dbreset:
+		params['dbreset'] = True
 
-# 	if args.mapsreset:
-# 		params['mapsreset'] = True
+	if args.mapsreset:
+		params['mapsreset'] = True
 
-# 	main(dbreset = params['dbreset'], mapsreset = params['mapsreset'])
+	main(dbreset = params['dbreset'], mapsreset = params['mapsreset'])

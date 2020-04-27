@@ -12,7 +12,7 @@ from statistic import *
 
 import main
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 app.title = 'Insee Dashboard'
 app.config['suppress_callback_exceptions']=True
 
@@ -46,7 +46,7 @@ select_dep = [
 				dbc.Label('Départements :', style={'font-size':'15px'}),
 				dcc.Dropdown(
 					id = 'departements',
-					options=[{'label': dep, 'value': dep} for dep in all_options.keys()],
+					options=[{'label': s.get_dep_name(dep)+" ({})".format(dep), 'value': dep} for dep in all_options.keys()],
 					multi=True,
 					value=['74'],
 					style={'color':'grey', 'font-size': '15px'},
@@ -101,38 +101,180 @@ navbar = dbc.Navbar([
     				className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
     				style={'width': '100%'}
 				),
-		], sticky='top', color="transparent")
+		], sticky='top', color="#484848", style={'margin-bottom': '5px'})
+
+com_cards = dbc.Card([
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				]),
+				dbc.Row([
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					),
+					dbc.Col(
+						dbc.Card(
+							html.P("TEST")
+						)
+					)
+				])
+			])
 
 body = html.Div([
 		dbc.Row([
-			dbc.Col(),#Cards
+			dbc.Col(
+				html.Div(
+					com_cards, style={'overflow': 'auto', 'height': '350px'}
+				), style={'width': '100%'}
+			),
 			dbc.Col(html.Div(id='map'))
-		]),
+		], style={'margin': '5px'}),
 		dbc.Row([
 			dbc.Col(
-				dbc.Card([
-					dcc.Graph(id='graph-evolution-pop', style={'border-radius':'0.5em'}),
-				], style={'border-radius':'0.5em', 'width': '100%'})
-			),
+				dbc.Card(
+					dcc.Graph(id='graph-evolution-pop'), color="light", outline=True, style={'border-radius':'0.5em'})
+			, width=4, align="center"),
+
 			dbc.Col(
-				dbc.Card([
-					dcc.Graph(id='graph-evolution-soc-pro', style={'border-radius':'0.5em'}),
-				], style={'border-radius':'0.5em', 'width': '100%'})
-			)
-		])
+				dbc.Card(
+					dcc.Graph(id='graph-evolution-soc-pro'), color="light", outline=True, style={'border-radius':'0.5em'})
+			, width=8)
+
+		], style={'margin-bottom': '5px', 'margin-left': '5px', 'margin-right': '5px'}),
+		dbc.Row(
+			dbc.Col(
+				dbc.Card()
+			),
+		)
 	])
 
 
 app.layout = html.Div([
+		navbar,
 		dbc.Container([
-			dbc.Card([
-				dbc.CardBody([
-					navbar,
-					body
-				])
-			], style={'background-color': '#F8F8FF'})
+			dbc.Card(
+				body
+			, style={'background-color': 'transparent', 'border-color': 'white'})
 		], fluid=True)
-	], className='mt-1')
+	], className='mt-0')
 
 @app.callback(
 	dash.dependencies.Output('map', 'children'),
@@ -141,9 +283,9 @@ app.layout = html.Div([
 def update_map(selector):
 	if len(selector):
 		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
-			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='450', style={'border-radius':'0.5em'})
+			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='400', style={'border-radius':'0.5em'})
 		else:
-			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='450', style={'border-radius':'0.5em'})
+			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='400', style={'border-radius':'0.5em'})
 
 @app.callback(
 	dash.dependencies.Output('communes', 'options'),
@@ -185,6 +327,7 @@ def update_graph_evolution_pop(selected_commune):
 				all_period[year] = int(pop[0])+int(pop[1])+int(pop[2])
 
 		traces.append(dict(
+			fill='tozeroy',
 			x = x_years,
 			y = y_pop,
 			name = commune+' Total',
@@ -193,6 +336,7 @@ def update_graph_evolution_pop(selected_commune):
 		)
 
 		traces.append(dict(
+			fill='tozeroy',
 			x = x_years,
 			y = y_pop_men,
 			name = commune+' Hommes',
@@ -202,6 +346,7 @@ def update_graph_evolution_pop(selected_commune):
 		)
 
 		traces.append(dict(
+			fill='tozeroy',
 			x = x_years,
 			y = y_pop_women,
 			name = commune+' Femmes',
@@ -217,6 +362,7 @@ def update_graph_evolution_pop(selected_commune):
 	if len(selected_commune) > 1:
 		legend_title = ", ".join(selected_commune[0:2])+"..."
 		traces.append(dict(
+			fill='tozeroy',
 			x = all_period_years,
 			y = all_period_pop,
 			name = legend_title,
@@ -227,11 +373,16 @@ def update_graph_evolution_pop(selected_commune):
 	figure =  {
 		'data': traces,
 		'layout': dict(
+			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
 			title = "Evolution de la population à {} de {} à {}".format(legend_title, min(years), max(years)),
-			xaxis = {'title': 'Année'},
-			yaxis = {'title': 'Population'},
+			xaxis = {'title': 'Année', 'gridcolor' : 'rgba(238, 238, 238, 0.5)'},
+			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0.5)'},
 			hovermode = 'closest',
-			legend=dict(orientation="h", y=-0.2)
+			paper_bgcolor =  'rgba(0, 0, 0, 0)',
+            plot_bgcolor = 'rgba(0, 0, 0, 0)',
+			font = {'color': 'white', 'size': 10},
+			legend = dict(orientation="h", y=-0.2),
+			height = 300,
 		),
 	}
 
@@ -299,10 +450,15 @@ def update_graph_evolution_soc_pro(selected_commune):
 		'data': traces,
 		'layout': dict(
 			title = "Evolution des catégories socio-profesionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
-			xaxis = {'title': 'Année'},
-			yaxis = {'title': 'Population'},
+			xaxis = {'title': 'Année',  'gridcolor' : 'rgba(238, 238, 238, 0.5)'},
+			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0.5)'},
 			hovermode = 'closest',
-			legend=dict(orientation="h", y=-0.2)
+			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
+			font = {'color': 'white', 'size': 10},
+			paper_bgcolor =  'rgba(0, 0, 0, 0)',
+            plot_bgcolor = 'rgba(0, 0, 0, 0)',
+			legend = dict(orientation="h", y=-0.2,
+			)
 		),
 	}
 
@@ -320,5 +476,6 @@ def update_graph_evolution_soc_pro(selected_commune):
 def update_card(commune):
 	return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune)]
 
-#if __name__ == 'dashboard':
-	#app.run_server(debug=True)
+print(__name__)
+# if __name__ == '__main__':
+# 	app.run_server(debug=True)
