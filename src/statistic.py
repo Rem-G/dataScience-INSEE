@@ -6,7 +6,7 @@ class Statistic():
 
 	def __init__(self):
 		parent_dir = Path(os.getcwd()).parent
-		self.db = Path.joinpath(parent_dir, "data", "population_1968-2016.db")
+		self.db = str(Path.joinpath(parent_dir, "data", "population_1968-2016.db"))
 
 	def get_deps(self):
 		parent_dir = Path(os.getcwd()).parent
