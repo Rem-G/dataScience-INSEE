@@ -20,6 +20,7 @@ DEFAULT_PLOTLY_COLORS=['rgb(31, 119, 180)', 'rgb(255, 127, 14)',
                        'rgb(227, 119, 194)', 'rgb(127, 127, 127)',
                        'rgb(188, 189, 34)', 'rgb(23, 190, 207)']
 
+
 #tranches âge la plus représentée pour une année donnée (h, f, m), répartition pop catégorie socio-prof, nombre habitants, commerces
 
 #Intégration des static files
