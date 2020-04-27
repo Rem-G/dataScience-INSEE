@@ -115,6 +115,9 @@ def main(dbreset, mapsreset):
 		
 	m = MapDVF().map_main(mapsreset)
 
+	# data.add_departement()
+	# A décommenter si la table 'Departement' de la base 'population_social_categories_1968-2016.db' n'est pas créée.
+
 	com_dep = user_request()
 	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
 	print(population, "POPULATION")
