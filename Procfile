@@ -1,1 +1,1 @@
-web: gunicorn --chdir src dashboard:app.server
+web: gunicorn --chdir src dashboard:server

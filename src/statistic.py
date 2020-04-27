@@ -162,7 +162,7 @@ class Statistic():
 
 		cursor.execute("""SELECT name FROM sqlite_master WHERE type = 'table'""")
 		tables = cursor.fetchall()
-		tables.remove('Departement')
+		tables.remove(('Departement',))
 
 		result = {}
 		unemployment = {}

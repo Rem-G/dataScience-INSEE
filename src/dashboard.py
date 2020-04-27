@@ -14,6 +14,8 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL])
 app.title = 'Insee Dashboard'
 app.config['suppress_callback_exceptions']=True
 
+server = app.server
+
 DEFAULT_PLOTLY_COLORS=['rgb(31, 119, 180)', 'rgb(255, 127, 14)',
                        'rgb(44, 160, 44)', 'rgb(214, 39, 40)',
                        'rgb(148, 103, 189)', 'rgb(140, 86, 75)',
@@ -316,5 +318,5 @@ def update_graph_evolution_soc_pro(selected_commune):
 def update_card(commune):
 	return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune)]
 
-if __name__ == 'dashboard':
-	app.run_server(debug=True)
+#if __name__ == 'dashboard':
+	#app.run_server(debug=True)
