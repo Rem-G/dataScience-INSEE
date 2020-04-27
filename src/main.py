@@ -110,6 +110,7 @@ def main(dbreset, mapsreset):
 				zip_ref.extractall(Path.joinpath(parent_dir, "data"))
 
 		data.create_db(False, "pop-socialcategories.xls")
+		data.add_departement()
 
 	m = MapDVF().map_main(mapsreset)
 
@@ -127,6 +128,8 @@ def main(dbreset, mapsreset):
 	######################################################################################
 	#THIS PAR WILL NOT BE RAN
 
+	# data.add_departement()
+	# A décommenter si la table 'Departement' de la base 'population_social_categories_1968-2016.db' n'est pas créée.
 
 	com_dep = user_request()
 	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])

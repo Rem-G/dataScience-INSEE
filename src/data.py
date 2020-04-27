@@ -1,3 +1,5 @@
+import requests
+import json
 import pandas as pd
 import os
 from pathlib import Path
@@ -108,3 +110,27 @@ class Data():
 				return None # No data available for this date
 
 
+	def add_departement(self):
+		db_name = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+
+		conn = sqlite3.connect(db_name)
+		c = conn.cursor()
+		c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+		tables = c.fetchall()
+
+		c.execute("SELECT DISTINCT Departement_en_geographie_2018 FROM {}".format('COM_2016'))
+		dep_number = c.fetchall()
+		dep_number = dep_number[1:]
+
+		data = {'Code_departement' : [], 'Departement' : []}
+		for dep in dep_number:
+			url = "https://geo.api.gouv.fr/departements/{}".format(dep[0])
+			result = requests.get(url).json()
+			data['Code_departement'].append(result['code'])
+			data['Departement'].append(result['nom'])
+
+		df = pd.DataFrame(data)
+		df.to_sql("Departement", conn, index=False, if_exists="replace")
+
+		conn.commit()
+		conn.close()
