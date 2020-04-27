@@ -1,0 +1,38 @@
+body{
+	font-family: inherit;
+}
+
+.vertical_card{
+	border-top-left-radius:0.5em;
+	border-bottom-left-radius:0.5em;
+	background-color: rgba(0, 145, 234, 0.9);
+	color:white;
+	height:100%;
+}
+
+.selection_territoire:hover{
+	background-color:rgba(0, 145, 234, 1);
+}
+
+.indicateurs_card{
+	border-top-right-radius:0.5em;
+	border-bottom-right-radius:0.5em;
+	background-color: #F4F4F4
+}
+
+.pie_size{
+	margin-left:2.5em;
+	border-radius: 0.5em;
+}
+
+.colonne_vertical_card{
+	padding-right:0;
+}
+
+.colonne_indicateurs_card{
+	padding-left:0;
+}
+
+.tab_class{
+	border-radius:0.5em;
+}
