@@ -88,9 +88,12 @@ def user_request():
 	# data.add_departement()
 	# A décommenter si la table 'Departement' de la base 'population_social_categories_1968-2016.db' n'est pas créée.
 
+def version_console():
 	statistic = Statistic()
 	data = Data()
 	com_dep = user_request()
+	parent_dir = str(Path(os.getcwd()).parent)
+
 	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
 	print(population, "POPULATION")
 
@@ -141,4 +144,5 @@ if __name__ == '__main__':
 		params['mapsreset'] = True
 
 	DataManage().manage(dbreset = params['dbreset'], mapsreset = params['mapsreset'])
+	version_console()
 
