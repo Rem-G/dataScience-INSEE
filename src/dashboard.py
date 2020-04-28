@@ -9,8 +9,10 @@ import os
 import flask
 
 from statistic import *
+from data_manage import *
 
-import main
+DataManage().manage(dbreset = False, mapsreset = False)
+
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 app.title = 'Insee Dashboard'
@@ -19,11 +21,10 @@ app.config['suppress_callback_exceptions']=True
 server = app.server
 
 DEFAULT_PLOTLY_COLORS=['rgb(31, 119, 180)', 'rgb(255, 127, 14)',
-                       'rgb(44, 160, 44)', 'rgb(214, 39, 40)',
-                       'rgb(148, 103, 189)', 'rgb(140, 86, 75)',
-                       'rgb(227, 119, 194)', 'rgb(127, 127, 127)',
-                       'rgb(188, 189, 34)', 'rgb(23, 190, 207)']
-
+					   'rgb(44, 160, 44)', 'rgb(214, 39, 40)',
+					   'rgb(148, 103, 189)', 'rgb(140, 86, 75)',
+					   'rgb(227, 119, 194)', 'rgb(127, 127, 127)',
+					   'rgb(188, 189, 34)', 'rgb(23, 190, 207)']
 
 #tranches âge la plus représentée pour une année donnée (h, f, m), répartition pop catégorie socio-prof, nombre habitants, commerces
 
@@ -91,10 +92,10 @@ navbar = dbc.Navbar([
 						dbc.Col(select_year, className="col-2 ml-4"),
 					],
 					align='center',
-    				className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
-    				style={'width': '100%'}
+					className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
+					style={'width': '100%'}
 				),
-		], sticky='top', color="#484848", style={'margin-bottom': '5px'})
+		], sticky='bottom', color="#484848", style={'margin-bottom': '5px'})
 
 com_cards = dbc.Card([
 				dbc.Row([
@@ -231,7 +232,7 @@ com_cards = dbc.Card([
 				])
 			])
 
-body = html.Div([
+body_multi = html.Div([
 		dbc.Row([
 			dbc.Col(
 				html.Div(
@@ -256,26 +257,73 @@ body = html.Div([
 			dbc.Col(
 				dbc.Card()
 			),
+		),
+		html.Div(id='graph-ages', style={'display': 'none'})
+	])
+
+body_year = html.Div([
+		dbc.Row([
+			dbc.Col(
+				html.Div(
+					com_cards, style={'overflow': 'auto', 'height': '350px'}
+				), style={'width': '100%'}
+			),
+			dbc.Col(html.Div(id='map'))
+		], style={'margin': '5px'}),
+		dbc.Row([
+			dbc.Col(
+				dbc.Card(
+					dcc.Graph(id='graph-evolution-pop'), color="light", outline=True, style={'border-radius':'0.5em'})
+			, width=4, align="center"),
+
+			dbc.Col(
+				dbc.Card(
+					dcc.Graph(id='graph-evolution-soc-pro'), color="light", outline=True, style={'border-radius':'0.5em'})
+			, width=4, align="center"),
+
+			dbc.Col(
+				dbc.Card(
+					dcc.Graph(id='graph-ages'), color="light", outline=True, style={'border-radius':'0.5em'})
+			, width=4, align="center"),
+
+		], style={'margin-bottom': '5px', 'margin-left': '5px', 'margin-right': '5px'}),
+		dbc.Row(
+			dbc.Col(
+				dbc.Card()
+			),
 		)
 	])
 
-
 app.layout = html.Div([
-	    dcc.Location(id='url', refresh=False),
 		navbar,
 		dbc.Container([
-			dbc.Card(
-				body
+			dbc.Card([
+				dcc.Location(id='url', refresh=False),
+    			html.Div(id='page-content')
+    		]
 			, style={'background-color': 'transparent', 'border-color': 'white'})
 		], fluid=True)
 	], className='mt-0')
 
 
+@app.callback(dash.dependencies.Output('page-content', 'children'),
+			  [dash.dependencies.Input('url', 'pathname')])
+
+def display_page(pathname):
+	if pathname == '/' or pathname == None:
+		return body_multi
+
+	elif int(pathname) in years:
+		return body_year
+
+	else:
+		return '404'
+
 @app.callback(dash.dependencies.Output('url', 'pathname'),
-              [dash.dependencies.Input('years', 'value')])
+			  [dash.dependencies.Input('years', 'value')])
 
 def redirect_url(dropdown_value):
-    return dropdown_value
+	return dropdown_value
 
 @app.callback(
 	dash.dependencies.Output('map', 'children'),
@@ -380,7 +428,7 @@ def update_graph_evolution_pop(selected_commune):
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-            plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			plot_bgcolor = 'rgba(34, 34, 34, 0)',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
@@ -457,7 +505,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
 			font = {'color': 'white', 'size': 10},
 			paper_bgcolor =  'rgba(0, 0, 0, 0)',
-            plot_bgcolor = 'rgba(0, 0, 0, 0)',
+			plot_bgcolor = 'rgba(0, 0, 0, 0)',
 			legend = dict(orientation="h", y=-0.2,
 			)
 		),
@@ -484,7 +532,7 @@ def update_graph_evolution_pop_year(selected_commune, year):
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-            plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			plot_bgcolor = 'rgba(34, 34, 34, 0)',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
@@ -536,7 +584,61 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-            plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			font = {'color': 'white', 'size': 10},
+			legend = dict(orientation="h", y=-0.2),
+			height = 300,
+		),
+	}
+
+	return figure
+
+def update_graph_ages(selected_commune, year):
+	commune = selected_commune[0]
+
+	ages = s.pop_stats_all_period(year, commune)
+
+	commune = selected_commune[0]
+
+	traces = list()
+	y_men = list()
+	y_women = list()
+	n = 0
+	i = 0
+
+	for key, value in ages.items():
+		if 'Femmes' in key:
+			y_women.append(ages[key])
+			i += 1
+
+		elif 'Hommes' in key:
+			y_men.append(ages[key])
+			i += 1
+
+		if i <= 2:
+			traces.append(dict(
+				x = [key.split("RP")[1]],
+				y = y_men+y_women,
+				name = key.split("_")[:len(key.split("_"))-2],
+				type = 'bar',
+				marker = dict(color = ['red', 'blue'])
+				)
+			)
+
+		y_men = list()
+		y_women = list()
+		i = 0
+
+	figure =  {
+		'data': traces,
+		'layout': dict(
+			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
+			title = "Répartition de la population à {} en {}".format(selected_commune[0], year),
+			xaxis = {'title': '', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			hovermode = 'closest',
+			paper_bgcolor =  'rgba(34, 34, 34, 0)',
+			plot_bgcolor = 'rgba(34, 34, 34, 0)',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
@@ -549,6 +651,7 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 @app.callback([
 		dash.dependencies.Output('graph-evolution-pop', 'figure'),
 		dash.dependencies.Output('graph-evolution-soc-pro', 'figure'),
+		dash.dependencies.Output('graph-ages', 'figure'),
 	],
 	[
 		dash.dependencies.Input('communes', 'value'),
@@ -557,11 +660,10 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 	)
 def update_card(commune, pathname):
 	if pathname == '/' or pathname == None:
-		return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune)]
+		return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune), None]
 
 	elif int(pathname) in years:
-		return [update_graph_evolution_pop_year(commune, pathname), update_graph_evolution_soc_pro_year(commune, pathname)]
+		return [update_graph_evolution_pop_year(commune, pathname), update_graph_evolution_soc_pro_year(commune, pathname), update_graph_ages(commune, pathname)]
 
-# print(__name__)
 # if __name__ == '__main__':
 # 	app.run_server(debug=True)

@@ -201,3 +201,35 @@ class Statistic():
 		return {'years': [table[0].split('_')[1] for table in tables], 'employment': employment, 'unemployment': unemployment}
 
 
+	def pop_stats_all_period(self, year, city):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+
+		columns = [row[0] for row in cursor.execute("SELECT name FROM PRAGMA_TABLE_INFO('" + table + "')")]
+		columns.remove('Departement_en_geographie_2018')
+		columns.remove('Libelle_de_commune')
+		columns.remove('population')
+		columns.remove('pop_men')
+		columns.remove('pop_women')
+
+		sql = "SELECT "
+		for column in columns:
+			sql += table+".'"+column+"', "
+
+		sql = sql[:len(sql)-2]
+		sql = sql + " FROM {} WHERE Libelle_de_commune = '{}'".format(table, city)
+
+		cursor.execute(sql)
+
+		result = cursor.fetchall()[0]
+
+		return {columns[result.index(r)]:int(float(r)) for r in result}
+
+
+
+
+
