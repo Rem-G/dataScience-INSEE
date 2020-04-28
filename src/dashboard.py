@@ -33,6 +33,10 @@ STATIC_PATH = Path.joinpath(parent_dir, "static")
 s = Statistic()
 years = s.get_years()
 
+years_options = [{'label': 'Multi millésime', 'value': '/'}]
+for year in years:
+	years_options.append({'label': year, 'value': str(year)})
+
 @app.server.route('/static/<resource>')
 def serve_static(resource):
 	return flask.send_from_directory(STATIC_PATH, resource)
@@ -49,8 +53,8 @@ select_dep = [
 					options=[{'label': s.get_dep_name(dep)+" ({})".format(dep), 'value': dep} for dep in all_options.keys()],
 					multi=True,
 					value=['74'],
-					style={'color':'grey', 'font-size': '15px'},
-					placeholder='Départements'
+					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
+					placeholder='Départements',
 				)
 			]
 
@@ -60,7 +64,7 @@ select_com = [
 					id = 'communes',
 					multi=True,
 					value=['Annecy'],
-					style={'color':'grey', 'font-size': '15px'},
+					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
 					placeholder='Communes'   
 				)
 			]
@@ -69,21 +73,12 @@ select_year = [
 				dbc.Label('Années :', style={'font-size':'15px'}),
 				dcc.Dropdown(
 					id = 'years',
-					multi=True,
-					options=[{'label': year, 'value': year} for year in years],
-					style={'color':'grey', 'font-size': '15px'},
+					multi=False,
+					options=years_options,
+					value='/',
+					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
 					placeholder='Années'   
-				)]
-
-select_indicator = [
-				dbc.Label('Indicateurs :', style={'font-size':'15px'}),
-				dcc.Dropdown(
-					id = 'indicators',
-					multi=True,
-					options=[{'label': year, 'value': year} for year in years],
-					style={'color':'grey', 'font-size': '15px'},
-					placeholder='Indicateurs'   
-				)]                   
+				)]                
 
 navbar = dbc.Navbar([
 				# Use row and col to control vertical alignment of logo / brand
@@ -94,10 +89,8 @@ navbar = dbc.Navbar([
 						dbc.Col(select_dep, className="col-2 ml-4"),
 						dbc.Col(select_com, className="col-2 ml-4"),
 						dbc.Col(select_year, className="col-2 ml-4"),
-						dbc.Col(select_indicator, className="col-2 ml-4"),
 					],
 					align='center',
-					no_gutters=True,
     				className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
     				style={'width': '100%'}
 				),
@@ -268,6 +261,7 @@ body = html.Div([
 
 
 app.layout = html.Div([
+	    dcc.Location(id='url', refresh=False),
 		navbar,
 		dbc.Container([
 			dbc.Card(
@@ -275,6 +269,13 @@ app.layout = html.Div([
 			, style={'background-color': 'transparent', 'border-color': 'white'})
 		], fluid=True)
 	], className='mt-0')
+
+
+@app.callback(dash.dependencies.Output('url', 'pathname'),
+              [dash.dependencies.Input('years', 'value')])
+
+def redirect_url(dropdown_value):
+    return dropdown_value
 
 @app.callback(
 	dash.dependencies.Output('map', 'children'),
@@ -331,7 +332,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = x_years,
 			y = y_pop,
 			name = commune+' Total',
-			marker = dict(size = '10', color = 'rgb(55, 83, 109)'),
+			marker = dict(color = 'rgba(55, 83, 109, 1)'),
 			)
 		)
 
@@ -340,7 +341,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = x_years,
 			y = y_pop_men,
 			name = commune+' Hommes',
-			marker = dict(size = '10', color = 'red'),
+			marker = dict(color = 'red'),
 			visible = 'legendonly'
 			)
 		)
@@ -366,7 +367,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = all_period_years,
 			y = all_period_pop,
 			name = legend_title,
-			marker = dict(size = '10', color = 'green'),
+			marker = dict(color = 'green'),
 			)
 		)
 
@@ -414,7 +415,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 				x = x_years,
 				y = value,
 				name = commune+' '+key,
-				marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[n]),
+				marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
 				)
 			)
 
@@ -427,7 +428,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 			x = x_years,
 			y = y_pop_unemployment,
 			name = commune+' Chomeurs',
-			marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[n]),
+			marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
 			)
 		)
 		n += 1
@@ -442,7 +443,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 			x = all_period_years,
 			y = all_period_pop,
 			name = legend_title,
-			marker = dict(size = '10', color = 'green'),
+			marker = dict(color = 'green'),
 			)
 		)
 
@@ -464,6 +465,86 @@ def update_graph_evolution_soc_pro(selected_commune):
 
 	return figure
 
+##########Year graphs##########
+
+def update_graph_evolution_pop_year(selected_commune, year):
+	population_years = s.get_pop_all_period(selected_commune[0])
+
+	y_pop_men = int(population_years[str(year)][1])
+	y_pop_women = int(population_years[str(year)][2])
+
+	traces = [go.Pie(labels=['Hommes', 'Femmes'], values=[y_pop_men, y_pop_women])]
+
+	figure =  {
+		'data': traces,
+		'layout': dict(
+			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
+			title = "Répartition de la population à {} en {}".format(selected_commune[0], year),
+			xaxis = {'title': 'Année', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			hovermode = 'closest',
+			paper_bgcolor =  'rgba(34, 34, 34, 0)',
+            plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			font = {'color': 'white', 'size': 10},
+			legend = dict(orientation="h", y=-0.2),
+			height = 300,
+		),
+	}
+
+	return figure
+
+def update_graph_evolution_soc_pro_year(selected_commune, year):
+	commune = selected_commune[0]
+
+	categories_soc_pro_commune_year = s.categories_soc_pro_commune(commune)
+	traces = list()
+	y_pop_unemployment = 0
+	n = 0
+
+	for key, value in categories_soc_pro_commune_year['employment'].items():
+		if str(year) in key:
+			if n >= len(DEFAULT_PLOTLY_COLORS):
+				n = 0
+
+			traces.append(dict(
+				y = [int(value)],
+				name = key.split('_Actifs_ayant_un_emploi')[0],
+				type = 'bar',
+				marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
+				)
+			)
+			n += 1
+
+	for key, value in categories_soc_pro_commune_year['unemployment'].items():
+		if str(year) in key:
+			y_pop_unemployment+=int(value)
+
+	traces.append(dict(
+		y = [y_pop_unemployment],
+		name = 'Chomeurs',
+		type = 'bar',
+		marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
+		)
+	)
+
+	figure =  {
+		'data': traces,
+		'layout': dict(
+			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
+			title = "Répartition de la population à {} en {}".format(selected_commune[0], year),
+			xaxis = {'title': '', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			hovermode = 'closest',
+			paper_bgcolor =  'rgba(34, 34, 34, 0)',
+            plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			font = {'color': 'white', 'size': 10},
+			legend = dict(orientation="h", y=-0.2),
+			height = 300,
+		),
+	}
+
+	return figure
+
 
 @app.callback([
 		dash.dependencies.Output('graph-evolution-pop', 'figure'),
@@ -471,11 +552,16 @@ def update_graph_evolution_soc_pro(selected_commune):
 	],
 	[
 		dash.dependencies.Input('communes', 'value'),
+		dash.dependencies.Input('url', 'pathname'),
 	]
 	)
-def update_card(commune):
-	return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune)]
+def update_card(commune, pathname):
+	if pathname == '/' or pathname == None:
+		return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune)]
 
-print(__name__)
+	elif int(pathname) in years:
+		return [update_graph_evolution_pop_year(commune, pathname), update_graph_evolution_soc_pro_year(commune, pathname)]
+
+# print(__name__)
 # if __name__ == '__main__':
 # 	app.run_server(debug=True)
