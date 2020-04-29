@@ -34,7 +34,7 @@ STATIC_PATH = Path.joinpath(parent_dir, "static")
 s = Statistic()
 years = s.get_years()
 
-years_options = [{'label': 'Multi millésime', 'value': '/'}]
+years_options = [{'label': 'Multi millésimes', 'value': '/'}]
 for year in years:
 	years_options.append({'label': year, 'value': str(year)})
 
@@ -71,14 +71,14 @@ select_com = [
 			]
 
 select_year = [
-				dbc.Label('Années :', style={'font-size':'15px'}),
+				dbc.Label('Millésimes :', style={'font-size':'15px'}),
 				dcc.Dropdown(
 					id = 'years',
 					multi=False,
 					options=years_options,
 					value='/',
 					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
-					placeholder='Années'   
+					placeholder='Millésimes'   
 				)]                
 
 navbar = dbc.Navbar([
@@ -95,7 +95,7 @@ navbar = dbc.Navbar([
 					className="flex-nowrap",#ml-auto : margin-left auto, mt-3 : $spacer margin top mt-md-0
 					style={'width': '100%'}
 				),
-		], sticky='bottom', color="#484848", style={'margin-bottom': '5px'})
+		], sticky='top', color="#484848", style={'margin-bottom': '5px'})
 
 com_cards = dbc.Card([
 				dbc.Row([
@@ -274,7 +274,7 @@ body_year = html.Div([
 			dbc.Col(
 				dbc.Card(
 					dcc.Graph(id='graph-evolution-pop'), color="light", outline=True, style={'border-radius':'0.5em'})
-			, width=4, align="center"),
+			, width=3, align="center"),
 
 			dbc.Col(
 				dbc.Card(
@@ -284,7 +284,7 @@ body_year = html.Div([
 			dbc.Col(
 				dbc.Card(
 					dcc.Graph(id='graph-ages'), color="light", outline=True, style={'border-radius':'0.5em'})
-			, width=4, align="center"),
+			, width=5, align="center"),
 
 		], style={'margin-bottom': '5px', 'margin-left': '5px', 'margin-right': '5px'}),
 		dbc.Row(
@@ -389,7 +389,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = x_years,
 			y = y_pop_men,
 			name = commune+' Hommes',
-			marker = dict(color = 'red'),
+			marker = dict(color = DEFAULT_PLOTLY_COLORS[3]),
 			visible = 'legendonly'
 			)
 		)
@@ -399,7 +399,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = x_years,
 			y = y_pop_women,
 			name = commune+' Femmes',
-			marker = dict(size = '10', color = 'blue'),
+			marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[0]),
 			visible = 'legendonly'
 			)
 		)
@@ -415,7 +415,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = all_period_years,
 			y = all_period_pop,
 			name = legend_title,
-			marker = dict(color = 'green'),
+			marker = dict(color = DEFAULT_PLOTLY_COLORS[1]),
 			)
 		)
 
@@ -424,8 +424,8 @@ def update_graph_evolution_pop(selected_commune):
 		'layout': dict(
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
 			title = "Evolution de la population à {} de {} à {}".format(legend_title, min(years), max(years)),
-			xaxis = {'title': 'Année', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
-			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			yaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			paper_bgcolor =  'rgba(34, 34, 34, 0)',
 			plot_bgcolor = 'rgba(34, 34, 34, 0)',
@@ -462,7 +462,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 			traces.append(dict(
 				x = x_years,
 				y = value,
-				name = commune+' '+key,
+				name = commune+' '+' '.join(key.split("_")),
 				marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
 				)
 			)
@@ -499,7 +499,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 		'data': traces,
 		'layout': dict(
 			title = "Evolution des catégories socio-profesionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
-			xaxis = {'title': 'Année',  'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
@@ -526,8 +526,8 @@ def update_graph_evolution_pop_year(selected_commune, year):
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
-			title = "Répartition de la population à {} en {}".format(selected_commune[0], year),
+			margin={'t': 60, 'b': 0, 'l': 0, 'r': 0},
+			title = "Répartition de la population à<br>{} en {}".format(selected_commune[0], year),
 			xaxis = {'title': 'Année', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
@@ -556,7 +556,7 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 
 			traces.append(dict(
 				y = [int(value)],
-				name = key.split('_Actifs_ayant_un_emploi')[0],
+				name = ' '.join(key.split('_Actifs_ayant_un_emploi')[0].split("_")),
 				type = 'bar',
 				marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
 				)
@@ -579,8 +579,8 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 		'data': traces,
 		'layout': dict(
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
-			title = "Répartition de la population à {} en {}".format(selected_commune[0], year),
-			xaxis = {'title': '', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			title = "Catégories socio-profesionnelles à {} en {}".format(selected_commune[0], year),
+			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)', 'visible': False},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			paper_bgcolor =  'rgba(34, 34, 34, 0)',
@@ -598,50 +598,49 @@ def update_graph_ages(selected_commune, year):
 
 	ages = s.pop_stats_all_period(year, commune)
 
-	commune = selected_commune[0]
-
 	traces = list()
-	y_men = list()
-	y_women = list()
 	n = 0
-	i = 0
-
 	for key, value in ages.items():
-		if 'Femmes' in key:
-			y_women.append(ages[key])
-			i += 1
+		key_split = key.split("_")[:len(key.split("_"))-2]
+		label = ' '.join(key_split[1:4])
 
-		elif 'Hommes' in key:
-			y_men.append(ages[key])
-			i += 1
-
-		if i <= 2:
+		if 'Hommes' in key:
 			traces.append(dict(
-				x = [key.split("RP")[1]],
-				y = y_men+y_women,
-				name = key.split("_")[:len(key.split("_"))-2],
+				x = [n],
+				y = [ages[key]],
+				name = 'H. '+label,
 				type = 'bar',
-				marker = dict(color = ['red', 'blue'])
+				marker = dict(color='rgba(55, 83, 109, 1)'),
 				)
 			)
 
-		y_men = list()
-		y_women = list()
-		i = 0
+		elif 'Femmes' in key:
+			traces.append(dict(
+				x = [n],
+				y = [ages[key]],
+				name = 'F. '+label,
+				type = 'bar',
+				marker = dict(color=DEFAULT_PLOTLY_COLORS[3]),
+				)
+			)
+			n += 5
 
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
-			title = "Répartition de la population à {} en {}".format(selected_commune[0], year),
-			xaxis = {'title': '', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
-			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
+			margin={'t': 40, 'b': 20, 'l': 12, 'r': 0},
+			title = "Répartition de la population par tranches d'âge à {} en {}".format(selected_commune[0], year),
+			xaxis = {'title': '', 'gridcolor' : 'rgba(238, 238, 238, 0)', 'tickmode' : 'linear', 'dtick': 5},
+			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)', 'showticklabels': False},
 			hovermode = 'closest',
 			paper_bgcolor =  'rgba(34, 34, 34, 0)',
 			plot_bgcolor = 'rgba(34, 34, 34, 0)',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
+			showlegend = False,
+    		barmode='stack',
+    		#bargroupgap=0.1,
 		),
 	}
 
