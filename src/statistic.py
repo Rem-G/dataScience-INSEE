@@ -251,7 +251,13 @@ class Statistic():
 
 		result = cursor.fetchall()[0]
 
-		return {columns[result.index(r)]:int(float(r)) for r in result}
+		index = 0
+		result_dict = dict()
+		for r in result:
+			result_dict[columns[index]] = int(float(r))
+			index += 1
+
+		return result_dict
 
 
 
