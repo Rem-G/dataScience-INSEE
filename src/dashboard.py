@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+
 import pandas as pd
 import plotly.graph_objs as go
 from pathlib import Path
@@ -13,7 +14,10 @@ from data_manage import *
 
 DataManage().manage(dbreset = False, mapsreset = False)
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
+#html.I(className="fa fa-camera-retro fa-lg"),
+
+
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'])
 app.title = 'Insee Dashboard'
 app.config['suppress_callback_exceptions']=True
 
@@ -94,142 +98,108 @@ navbar = dbc.Navbar([
 					className="flex-nowrap",
 					style={'width': '100%'}
 				),
-		], sticky='top', color="#484848")
+		], sticky='bottom', color="#484848")
 
 com_cards = dbc.Card([
 				dbc.Row([
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER", id = "card1_group"),
+							html.H4("Tranche d'âge la plus représentée",
+									className="card-text"),
+							html.H2("NUMBER", id = "card1_pop"),
+							html.H4("Nombre de personnes faisant partie de cette tranche d'âge.", className="card-text")
+						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px', 'text-align' : 'center'})
 					),
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER", id = "card2_group"),
+							html.H4("Tranche d'âge la plus représentée chez la femme",
+									className="card-text"),
+							html.H2("NUMBER", id = "card2_pop"),
+							html.H4("Nombre de femmes faisant partie de cette tranche d'âge.", className="card-text")
+						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px', 'text-align' : 'center'})
+					),
+					dbc.Col(
+						dbc.Card([
+							html.H2("NUMBER", id = "card3_group"),
+							html.H4("Tranche d'âge la plus représentée chez l'homme",
+									className="card-text"),
+							html.H2("NUMBER", id = "card3_pop"),
+							html.H4("Nombre d'hommes faisant partie de cette tranche d'âge.", className="card-text")
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '0px', 'text-align' : 'center'})
 					)
 				]),
 				dbc.Row([
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER", id = "card4"),
+							html.H4("Nombre de femme faisant partie de la tranche d'âge la plus représentée chez la femme.",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER", id = "card5"),
+							html.H4("Tranche d'âge la plus représentée chez l'homme",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
+					),
+					dbc.Col(
+						dbc.Card([
+							html.H2("NUMBER", id = "card6"),
+							html.H4("Nombre d'hommes faisant partie de la tranche d'âge la plus représentée chez l'homme.",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					)
 				]),
 				dbc.Row([
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER"),
+							html.H4("This is the description of what the big number corresponds to",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER"),
+							html.H4("This is the description of what the big number corresponds to",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
+					),
+					dbc.Col(
+						dbc.Card([
+							html.H2("NUMBER"),
+							html.H4("This is the description of what the big number corresponds to",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					)
 				]),
 				dbc.Row([
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER"),
+							html.H4("This is the description of what the big number corresponds to",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER"),
+							html.H4("This is the description of what the big number corresponds to",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					),
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					),
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					),
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					),
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					),
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
-					),
-					dbc.Col(
-						dbc.Card(
-							html.P("TEST")
-						)
+						dbc.Card([
+							html.H2("NUMBER"),
+							html.H4("This is the description of what the big number corresponds to",
+									className="card-text"),
+						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					)
 				])
-			], style={'margin-top': '7px'})
+			], style={'margin-top': '20px', 'border-color': 'white', 'border-radius':'0.5em'}, color='transparent')
 
 body_multi = [dbc.Row([
 				dbc.Col(
@@ -263,10 +233,49 @@ body_year = dbc.Row([
 						dcc.Graph(id='graph-ages'), color="light", outline=True, style={'border-radius':'0.5em'})
 				, width=5, align="center"),
 
-		], style={'margin-bottom': '5px', 'margin-left': '5px', 'margin-right': '5px'}),
+		], style={'margin-bottom': '5px', 'margin-left': '5px', 'margin-right': '5px'})
 
+modal = dbc.Modal(
+			[
+				dbc.ModalHeader("Insee Dashboard - Utilisation"),
+				dbc.ModalBody([
+					html.P("Ce dashboard propose différents indicateurs liés à une ou plusieurs communes de France métropolitaine et d'Outre-mer."),
+					html.Br(),
+					html.P("Les communes sont cumulables pour le mode Multi-millésimes, ainsi le dashboard affichera les indicateurs de chaque commune et la somme des indicateurs de ces dernières."),
+					html.P("Le mode annuel permet quant à lui d'afficher des indicateurs plus précis sur une commune à une date donnée."),
+					html.Br(),
+					html.P("La carte proposée à partir des données DVF affiche le prix moyen du m2 de logement pour la commune sélectionnée. De plus, elle permet de comparer la valeur foncière de la commune avec le reste du département.")
+				]),
+				dbc.ModalFooter(
+					dbc.Button(
+						"Fermer", id="close-centered", className="ml-auto"
+					)
+				),
+			],
+			id="modal",
+			centered=True,
+		)
+
+modal_map = dbc.Modal(
+			[
+				dbc.ModalHeader("Représentation valeur foncière logement - Source : DVF"),
+				dbc.ModalBody([
+						html.Div(id='modal_map_div')
+				]),
+				dbc.ModalFooter(
+					dbc.Button(
+						"Fermer", id="close-centered-map", className="ml-auto"
+					)
+				),
+			],
+			id="modal_map",
+			centered=True,
+			size='xl',
+		)
 
 app.layout = html.Div([
+		modal,
+		modal_map,
 		navbar,
 		dbc.Container([
 			dbc.Card([
@@ -277,18 +286,27 @@ app.layout = html.Div([
 						), style={'width': '100%'}
 					),
 					dbc.Col([
-						html.P("Représentation valeur foncière logement - Source : DVF", style={'text-align': 'center', 'height': 10}),
+						html.P("Représentation valeur foncière logement - Source : DVF - Cliquer pour agrandir", id="p_map", style={'text-align': 'center', 'height': 10}),
 						html.Div(id='map')])
 				], style={'margin-left': '5px', 'margin-right': '5px'}),
 
 				html.Div(id='page-content')
-    		], style={'background-color': 'transparent', 'border-color': 'white'})
+			], style={'background-color': 'transparent', 'border-color': 'white'})
 		], fluid=True)
-	], className='mt-0')
+	])
 
+########################################################
+#################### CALLBACKS #########################
+########################################################
+
+########################################################
+#################### DISPLAY PAGE ######################
+########################################################
 
 @app.callback(dash.dependencies.Output('page-content', 'children'),
-			  [dash.dependencies.Input('years', 'value')])
+			[
+				dash.dependencies.Input('years', 'value')
+			])
 
 def display_page(year):
 	if year == '/':
@@ -297,20 +315,14 @@ def display_page(year):
 	elif int(year) in years:
 		return body_year
 
-@app.callback(
-	dash.dependencies.Output('map', 'children'),
-	[dash.dependencies.Input('departements', 'value')])
+########################################################
+#################### COMMUNES OPTIONS ##################
+########################################################
 
-def update_map(selector):
-	if len(selector):
-		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
-			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})
-		else:
-			return html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})
-
-@app.callback(
-	dash.dependencies.Output('communes', 'options'),
-	[dash.dependencies.Input('departements', 'value')])
+@app.callback(dash.dependencies.Output('communes', 'options'),
+			[	
+				dash.dependencies.Input('departements', 'value')
+			])
 
 def communes_options(selected_dep):
 	'''
@@ -322,6 +334,137 @@ def communes_options(selected_dep):
 		for com in dep:
 			communes.append({'label': com, 'value': com})
 	return communes
+
+
+########################################################
+#################### MODALS CALLBACKS ##################
+########################################################
+
+@app.callback([
+				dash.dependencies.Output("modal", "is_open")
+			],
+			[
+				dash.dependencies.Input("close-centered", "n_clicks")
+			],
+			[
+				dash.dependencies.State("modal", "is_open")
+			])
+def display_modal(n, is_open):
+	if n and is_open:
+		return [False]
+	return [True]
+
+@app.callback(dash.dependencies.Output("modal_map", "is_open"),
+			[
+				dash.dependencies.Input("close-centered-map", "n_clicks"),
+				dash.dependencies.Input("p_map", "n_clicks")
+			],
+			[
+				dash.dependencies.State("modal_map", "is_open")
+			])
+def update_modal_map(n, map_click, is_open):
+	if n and is_open:
+		return False
+
+	elif map_click:
+		return True
+
+########################################################
+#################### MAPS UPDATE #######################
+########################################################
+
+@app.callback([
+				dash.dependencies.Output('map', 'children')
+			],
+			[
+				dash.dependencies.Input('departements', 'value')
+			])
+
+def update_map(selector):
+	if len(selector):
+		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
+		else:
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
+
+@app.callback([
+				dash.dependencies.Output('modal_map_div', 'children')
+			],
+			[
+				dash.dependencies.Input('departements', 'value')
+			])
+
+def update_map_modal(selector):
+	if len(selector):
+		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
+		else:
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
+
+########################################################
+################ COMMUNE INDICATOR CARDS ###############
+########################################################
+
+@app.callback([
+				dash.dependencies.Output('card1_group', 'children'),
+				dash.dependencies.Output('card1_pop', 'children'),
+				dash.dependencies.Output('card2_group', 'children'),
+				dash.dependencies.Output('card2_pop', 'children'),
+				dash.dependencies.Output('card3_group', 'children'),
+				dash.dependencies.Output('card3_pop', 'children')
+			],
+			[
+			  dash.dependencies.Input('years', 'value'),
+			  dash.dependencies.Input('communes', 'value')
+			 ])
+
+def stats_age_group(year, com):
+	if(year == '/'):
+		year = 2016
+
+	age_group = s.get_largest_age_group(int(year), com[0])
+
+	most_represented_age_group = [age_group[0][1]," - ", age_group[0][2], "ans"]
+	population_in_most_represented_age_group = age_group[0][0]
+
+	most_represented_age_group_women = [age_group[1][1]," - ", age_group[1][2], "ans"]
+	population_in_most_represented_age_group_women = age_group[1][0]
+
+	most_represented_age_group_men = [age_group[2][1]," - ", age_group[2][2], "ans"]
+	population_in_most_represented_age_group_men = age_group[2][0]
+
+	return [most_represented_age_group, population_in_most_represented_age_group,
+			most_represented_age_group_women, population_in_most_represented_age_group_women,
+			most_represented_age_group_men,	population_in_most_represented_age_group_men]
+
+########################################################
+#################### UPDATE GRAPHES ####################
+########################################################
+
+@app.callback([
+		dash.dependencies.Output('graph-evolution-pop', 'figure'),
+		dash.dependencies.Output('graph-evolution-soc-pro', 'figure'),
+		dash.dependencies.Output('graph-ages', 'figure')
+	],
+	[
+		dash.dependencies.Input('communes', 'value'),
+		dash.dependencies.Input('years', 'value')
+	])
+def update_graphes(commune, year):
+	if year == '/':
+		return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune), None]
+
+	elif int(year) in years:
+		return [update_graph_evolution_pop_year(commune, year), update_graph_evolution_soc_pro_year(commune, year), update_graph_ages(commune, year)]
+
+
+########################################################
+################# GRAPHES FUNCTIONS ####################
+########################################################
+
+########################################################
+#################### MULTI GRAPHES #####################
+########################################################
 
 def update_graph_evolution_pop(selected_commune):
 	traces = list()
@@ -472,7 +615,9 @@ def update_graph_evolution_soc_pro(selected_commune):
 
 	return figure
 
-##########Year graphs##########
+########################################################
+#################### YEAR GRAPHES ######################
+########################################################
 
 def update_graph_evolution_pop_year(selected_commune, year):
 	population_years = s.get_pop_all_period(selected_commune[0])
@@ -599,30 +744,12 @@ def update_graph_ages(selected_commune, year):
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
 			showlegend = False,
-    		barmode='stack',
-    		#bargroupgap=0.1,
+			barmode='stack',
+			#bargroupgap=0.1,
 		),
 	}
 
 	return figure
-
-
-@app.callback([
-		dash.dependencies.Output('graph-evolution-pop', 'figure'),
-		dash.dependencies.Output('graph-evolution-soc-pro', 'figure'),
-		dash.dependencies.Output('graph-ages', 'figure'),
-	],
-	[
-		dash.dependencies.Input('communes', 'value'),
-		dash.dependencies.Input('years', 'value'),
-	]
-	)
-def update_card(commune, year):
-	if year == '/':
-		return [update_graph_evolution_pop(commune), update_graph_evolution_soc_pro(commune), None]
-
-	elif int(year) in years:
-		return [update_graph_evolution_pop_year(commune, year), update_graph_evolution_soc_pro_year(commune, year), update_graph_ages(commune, year)]
 
 # if __name__ == '__main__':
 # 	app.run_server(debug=True)
