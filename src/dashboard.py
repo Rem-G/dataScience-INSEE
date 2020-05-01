@@ -104,7 +104,7 @@ com_cards = dbc.Card([
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H4("Nom commune :",
+							html.H4("Commune :",
 									className="card-text"),
 							html.H2("NUMBER", id = "card1_nom"),
 							html.H4("Code INSEE :",
@@ -113,7 +113,7 @@ com_cards = dbc.Card([
 							html.H4("Code postal :",
 									className="card-text"),
 							html.H2("NUMBER", id="card1_postal"),
-							html.H4("Superficie (en km²) :",
+							html.H4("Superficie (km²) :",
 									className="card-text"),
 							html.H2("NUMBER", id="card1_superficie")
 						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
@@ -122,7 +122,7 @@ com_cards = dbc.Card([
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("La tranche d'âge la plus représentée :", className='card-text'),
+							html.H4("Tranche d'âge la plus représentée :", className='card-text'),
 							html.H2("NUMBER", id = "card2_group"),
 							html.H4("Nombre de personnes faisant partie de cette tranche d'âge :",
 									className="card-text"),
@@ -145,13 +145,14 @@ com_cards = dbc.Card([
 					dbc.Col(
 						dbc.Card([
 							html.H4(
-								"Nombre de commerces non liés à la nourriture :",
+								"Nombre de commerces alimentaires :",
+								className="card-text"),
+							html.H2("NUMBER", id="card4_shop_food"),
+							html.H4(
+								"Nombre de commerces non alimentaires :",
 								className="card-text"),
 							html.H2("NUMBER", id = "card4_shop"),
-							html.H4(
-								"Nombre de commerces liés à la nourriture :",
-								className="card-text"),
-							html.H2("NUMBER", id="card4_shop_food")
+
 						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
@@ -159,9 +160,9 @@ com_cards = dbc.Card([
 							html.H4("Taux de chômage :",
 									className="card-text"),
 							html.H2("NUMBER", id = "card5_taux"),
-							html.H4("soit :",
-									className="card-text"),
-							html.H2("NUMBER", id="card5_nb")
+							html.H4("soit", className="card-text"),
+							html.H2("NUMBER", id="card5_nb"),
+							html.H4("personnes"),
 						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
@@ -172,7 +173,7 @@ com_cards = dbc.Card([
 						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					)
 				], align='center')
-			], style={'margin-top': '20px', 'border-color': 'white', 'border-radius':'0.5em'}, color='transparent')
+			], style={'margin-top': '20px', 'border-radius':'0.5em'}, color='transparent')
 
 body_multi = [dbc.Row([
 				dbc.Col(
@@ -383,21 +384,28 @@ def update_map_modal(selector):
 				dash.dependencies.Output('card1_insee', 'children'),
 				dash.dependencies.Output('card1_postal', 'children'),
 				dash.dependencies.Output('card1_superficie', 'children'),
+				dash.dependencies.Output('card3_pop', 'children'),
+				dash.dependencies.Output('card3_densite', 'children'),
 			],
 			[
-				dash.dependencies.Input('communes', 'value')
+				dash.dependencies.Input('communes', 'value'),
+				dash.dependencies.Input('departements', 'value')
 			 ])
 
-def stats_commune(com):
+def stats_commune(com, dep):
 
 	city = com[0].lower()
 
-	nom = s.com_info(city)[0]
-	code_postal = s.com_info(city)[1]
-	code_insee = s.com_info(city)[2]
-	superficie = s.get_superficie_pop_densite(city)[0]
+	res = s.com_info(city, dep[0])
 
-	return [nom, code_postal, code_insee, superficie]
+	nom = res['nom']
+	code_postal = res['code_postal']
+	code_insee = res['code_insee']
+	superficie = res['superficie']
+	pop = res['pop']
+	densite = res['densite']
+
+	return [nom, code_insee, code_postal, superficie, pop, densite]
 
 @app.callback([
 				dash.dependencies.Output('card2_group', 'children'),
@@ -420,37 +428,24 @@ def stats_age_group(year, com):
 	return [most_represented_age_group, population_in_most_represented_age_group]
 
 @app.callback([
-				dash.dependencies.Output('card3_pop', 'children'),
-				dash.dependencies.Output('card3_densite', 'children'),
-			],
-			[
-			  dash.dependencies.Input('communes', 'value')
-			])
-
-def stats_superficie(com):
-
-	city = com[0].lower()
-
-	pop = s.get_superficie_pop_densite(city)[1]
-	densite = s.get_superficie_pop_densite(city)[2]
-
-	return [pop, densite]
-
-@app.callback([
 				dash.dependencies.Output('card4_shop', 'children'),
 				dash.dependencies.Output('card4_shop_food', 'children'),
 			],
 			[
-			  dash.dependencies.Input('communes', 'value')
+			  dash.dependencies.Input('communes', 'value'),
+			  dash.dependencies.Input('departements', 'value')
 			 ])
 
-def stats_commerce(com):
+def stats_commerce(com, dep):
+	if 'arrondissement' in com[0].lower():
+		city = com[0].split(" ")[0]
+	else:
+		city = com[0]
 
-	city = com[0].lower()
+	res = s.commerces_com(city, dep[0])
 
-	shop = s.commerces_com(city)['other']
-	shop_food = s.commerces_com(city)['food']
-
+	shop = res['other']
+	shop_food = res['food']
 	return [shop, shop_food]
 
 @app.callback([
@@ -474,7 +469,7 @@ def stats_chomage(year, com):
 	taux = round((chomeur / actif) * 100, 2)
 	taux = str(taux) + "%"
 
-	return [taux, str(int(chomeur)) + ' Chômeurs']
+	return [taux, str(int(chomeur))]
 
 ########################################################
 #################### UPDATE GRAPHES ####################

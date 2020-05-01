@@ -18,8 +18,8 @@ class Statistic():
 		response = requests.get(url, headers=headers)
 		return response
 
-	def com_info(self, city):
-		url = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code%2Cnom%2Csurface%2CcodesPostaux%2Cpopulation&json&format=json'
+	def com_info(self, city, dep):
+		url = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code,nom,surface,codesPostaux,population,departement&json&format=json'
 
 		if 'arrondissement'.upper() in city.upper():
 			city = city.split(' ')[0]
@@ -28,33 +28,20 @@ class Statistic():
 
 		data = {}
 		for result in response:
-			if result['nom'].upper() == city.upper():
+			if result['nom'].upper() == city.upper() and result['departement']['code'] == dep:
 				data = result
 
 		insee_code = data['code']
 		nom_com = data['nom']
 		code_postal = data['codesPostaux'][0]
 
-		return(nom_com, code_postal, insee_code)
-
-	def get_superficie_pop_densite(self,city):
-		url = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code%2Cnom%2Csurface%2CcodesPostaux%2Cpopulation'
-
-		if 'arrondissement'.upper() in city.upper():
-			city = city.split(' ')[0]
-
-		response = self.auth_api(url.format(city)).json()
-
-		data = {}
-		for result in response:
-			if result['nom'].upper() == city.upper():
-				data = result
-
 		superficie = round(data['surface'] / 10**2, 3)
 		pop = data['population']
 		densite = round(pop / (superficie * 10**2), 3)
 
-		return [superficie, pop, densite]
+
+		return {'nom': nom_com, 'code_postal': code_postal, 'code_insee': insee_code, 'superficie': superficie, 'pop': pop, 'densite': densite}
+
 
 	def get_dep_name(self, dep):
 		parent_dir = Path(os.getcwd()).parent
@@ -127,9 +114,11 @@ class Statistic():
 
 		for age in range(0, 91, 5):
 
-			pop = self.pop_stats(year, age, city)[0]
-			pop_w = self.pop_stats(year, age, city)[1]
-			pop_m = self.pop_stats(year, age, city)[2]
+			res = self.pop_stats(year, age, city)
+
+			pop = res[0]
+			pop_w = res[1]
+			pop_m = res[2]
 
 			if pop >= age_group[0]:
 				age_group[0] = pop
@@ -338,10 +327,13 @@ class Statistic():
 
 		return result_dict
 
-	def commerces_com(self, commune):
+	def commerces_com(self, commune, dep):
 			filename = str(Path(os.getcwd()).parent) + "/data/equip-serv-commerce-com-2018.xls"
 			df = pd.read_excel(filename, skiprows = range(4), usecols = 'B:AB')
-			line  = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
+
+			dep_lines  = df.loc[df['Département'].str.upper() == dep.upper()]
+			line = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
+
 			nb_commerces_food = 0
 			nb_commerces_other = 0
 
