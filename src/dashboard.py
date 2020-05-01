@@ -140,7 +140,7 @@ com_cards = dbc.Card([
 							html.H2("NUMBER", id = "card3_densite")
 						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '0px', 'text-align' : 'center'})
 					)
-				]),
+				], align='center'),
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
@@ -156,19 +156,22 @@ com_cards = dbc.Card([
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H2("NUMBER", id = "card5"),
-							html.H4("Tranche d'âge la plus représentée chez l'homme",
+							html.H4("Taux de chômage :",
 									className="card-text"),
+							html.H2("NUMBER", id = "card5_taux"),
+							html.H4("soit :",
+									className="card-text"),
+							html.H2("NUMBER", id="card5_nb")
 						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
 						dbc.Card([
 							html.H2("NUMBER", id = "card6"),
-							html.H4("Nombre d'hommes faisant partie de la tranche d'âge la plus représentée chez l'homme.",
+							html.H4("Text",
 									className="card-text"),
 						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					)
-				])
+				], align='center')
 			], style={'margin-top': '20px', 'border-color': 'white', 'border-radius':'0.5em'}, color='transparent')
 
 body_multi = [dbc.Row([
@@ -406,7 +409,7 @@ def stats_commune(com):
 			 ])
 
 def stats_age_group(year, com):
-	print(s.commerces_com(com[0]))
+
 	if(year == '/'):
 		year = 2016
 
@@ -450,6 +453,29 @@ def stats_commerce(com):
 	shop_food = s.commerces_com(city)['food']
 
 	return [shop, shop_food]
+
+@app.callback([
+				dash.dependencies.Output('card5_taux', 'children'),
+				dash.dependencies.Output('card5_nb', 'children')
+			],
+			[
+				dash.dependencies.Input('years', 'value'),
+				dash.dependencies.Input('communes', 'value')
+			])
+
+def stats_chomage(year, com):
+	if(year == '/'):
+		year = 2016
+
+	city = com[0]
+
+	chomeur = s.get_chomeur(city, year)
+	actif = s.get_actif(city, year) - chomeur
+
+	taux = round((chomeur / actif) * 100, 2)
+	taux = str(taux) + "%"
+
+	return [taux, str(int(chomeur)) + ' Chômeurs']
 
 ########################################################
 #################### UPDATE GRAPHES ####################

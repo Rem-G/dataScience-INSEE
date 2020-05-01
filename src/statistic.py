@@ -170,6 +170,39 @@ class Statistic():
 
 		return result
 
+	def get_actif(self, city, year):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+		nb_travailleur = 0
+
+		for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+			for i in range(2, len(row)):
+				if row[i] != 'None':
+					nb_travailleur += float(row[i])
+
+		return nb_travailleur
+
+	def get_chomeur(self, city, year):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+		nb_chomeur = 0
+		city = str(city)
+
+		for row in cursor.execute("SELECT Agriculteurs_Chomeurs_RP" + str(year) + ", \"Artisans,_commercants,_chefs_d'entreprise_Chomeurs_RP" + str(year) + "\", Cadres_et_professions_intellectuelles_superieures_Chomeurs_RP" + str(year) + ", Professions_intermediaires_Chomeurs_RP" + str(year) + ", Employes_Chomeurs_RP" + str(year) + ", Ouvriers_Chomeurs_RP" + str(year) + " FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+			for value in row:
+				if value != 'None':
+					nb_chomeur += float(value)
+
+		return nb_chomeur
+
 	def category_soc_pro_dep(self, year, city):
 
 			filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
