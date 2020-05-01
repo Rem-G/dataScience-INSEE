@@ -264,10 +264,9 @@ class Statistic():
 	def commerces_com(self, commune):
 			filename = str(Path(os.getcwd()).parent) + "/data/equip-serv-commerce-com-2018.xls"
 			df = pd.read_excel(filename, skiprows = range(4), usecols = 'B:AB')
-			line  = df.loc[df['Libellé commune ou ARM']==commune]
+			line  = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
 			nb_commerces_food = 0
 			nb_commerces_other = 0
-
 
 			for label, content in line.items():
 				if label not in ['Libellé commune ou ARM', 'Région', 'Département']:

@@ -18,7 +18,7 @@ DataManage().manage(dbreset = False, mapsreset = False)
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'])
-app.title = 'Insee Dashboard'
+app.title = 'Dash 3 en 1'
 app.config['suppress_callback_exceptions']=True
 
 server = app.server
@@ -35,9 +35,6 @@ STATIC_PATH = Path.joinpath(parent_dir, "static")
 
 s = Statistic()
 years = s.get_years()
-
-print(s.commerces_com('Annecy'))
-
 
 years_options = [{'label': 'Multi millésimes', 'value': '/'}]
 for year in years:
@@ -92,7 +89,7 @@ navbar = dbc.Navbar([
 				dbc.Row(
 					[
 						dbc.Col(html.Img(src='/static/logo_polytech.png', height="50px")),
-						dbc.Col(dbc.NavbarBrand("Insee Dashboard", className="col-1")),
+						dbc.Col(dbc.NavbarBrand("Dash 3 en 1", className="col-1")),
 						dbc.Col(select_dep, className="col-2 ml-4"),
 						dbc.Col(select_com, className="col-2 ml-4"),
 						dbc.Col(select_year, className="col-2 ml-4"),
@@ -240,7 +237,7 @@ body_year = dbc.Row([
 
 modal = dbc.Modal(
 			[
-				dbc.ModalHeader("Insee Dashboard - Utilisation"),
+				dbc.ModalHeader("Dash 3 en 1 - Utilisation"),
 				dbc.ModalBody([
 					html.P("Ce dashboard propose différents indicateurs liés à une ou plusieurs communes de France métropolitaine et d'Outre-mer."),
 					html.Br(),
@@ -261,7 +258,7 @@ modal = dbc.Modal(
 
 modal_map = dbc.Modal(
 			[
-				dbc.ModalHeader("Représentation valeur foncière logement - Source : DVF"),
+				dbc.ModalHeader("Représentation valeur foncière logement - Donnée DVF"),
 				dbc.ModalBody([
 						html.Div(id='modal_map_div')
 				]),
@@ -289,7 +286,7 @@ app.layout = html.Div([
 						), style={'width': '100%'}
 					),
 					dbc.Col([
-						html.P("Représentation valeur foncière logement - Source : DVF - Cliquer pour agrandir", id="p_map", style={'text-align': 'center', 'height': 10}),
+						html.P(["Valeur foncière logement - Donnée DVF ", dbc.Button('Agrandir', style={'height': 24, 'font-size': 10, 'background-color': 'rgba(0,126,255,1)'}, id="p_map")], style={'text-align': 'center', 'height': 10}),
 						html.Div(id='map')])
 				], style={'margin-left': '5px', 'margin-right': '5px'}),
 
@@ -422,6 +419,7 @@ def update_map_modal(selector):
 			 ])
 
 def stats_age_group(year, com):
+	print(s.commerces_com(com[0]))
 	if(year == '/'):
 		year = 2016
 
@@ -563,7 +561,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 		categories_soc_pro_commune_years = s.categories_soc_pro_commune(commune)
 		x_years = categories_soc_pro_commune_years['years']
 		y_pop = dict()
-		y_pop_unemployment = list()
+		y_pop_unemployment = dict()
 
 		for key, value in categories_soc_pro_commune_years['employment'].items():
 			if key.split('_Actifs_ayant_un_emploi')[0] in y_pop.keys():
@@ -587,16 +585,18 @@ def update_graph_evolution_soc_pro(selected_commune):
 			n += 1
 
 		for key, value in categories_soc_pro_commune_years['unemployment'].items():
-			y_pop_unemployment.append(int(value))
+			if key.split("RP")[1] in y_pop_unemployment.keys():
+				y_pop_unemployment[key.split("RP")[1]] += int(value)
+			else:
+				y_pop_unemployment[key.split("RP")[1]] = int(value)
 
 		traces.append(dict(
 			x = x_years,
-			y = y_pop_unemployment,
+			y = [value for key, value in y_pop_unemployment.items()],
 			name = commune+' Chomeurs',
 			marker = dict(color = DEFAULT_PLOTLY_COLORS[n]),
 			)
 		)
-		n += 1
 
 	legend_title = selected_commune[0]
 
