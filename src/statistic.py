@@ -19,21 +19,39 @@ class Statistic():
 		return response
 
 	def com_info(self, city):
-		url = 'https://data.opendatasoft.com/api/records/1.0/search/?dataset=code-postal-code-insee-2015%40public&q={}'
+		url = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code%2Cnom%2Csurface%2CcodesPostaux%2Cpopulation&json&format=json'
+
+		if 'arrondissement'.upper() in city.upper():
+			city = city.split(' ')[0]
+
 		response = self.auth_api(url.format(city)).json()
 
-		insee_code = response['records'][0]['fields']['insee_com']
-		nom_com = response['records'][0]['fields']['nom_com']
-		code_postal = response['records'][0]['fields']['code_postal']
+		data = {}
+		for result in response:
+			if result['nom'].upper() == city.upper():
+				data = result
+
+		insee_code = data['code']
+		nom_com = data['nom']
+		code_postal = data['codesPostaux'][0]
 
 		return(nom_com, code_postal, insee_code)
 
 	def get_superficie_pop_densite(self,city):
-		url2 = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code%2Cnom%2Csurface%2CcodesPostaux%2Cpopulation'
-		response2 = self.auth_api(url2.format(city)).json()
+		url = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code%2Cnom%2Csurface%2CcodesPostaux%2Cpopulation'
 
-		superficie = round(response2[0]['surface'] / 10**2, 3)
-		pop = response2[0]['population']
+		if 'arrondissement'.upper() in city.upper():
+			city = city.split(' ')[0]
+
+		response = self.auth_api(url.format(city)).json()
+
+		data = {}
+		for result in response:
+			if result['nom'].upper() == city.upper():
+				data = result
+
+		superficie = round(data['surface'] / 10**2, 3)
+		pop = data['population']
 		densite = round(pop / (superficie * 10**2), 3)
 
 		return [superficie, pop, densite]
