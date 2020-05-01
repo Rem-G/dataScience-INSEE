@@ -104,38 +104,54 @@ com_cards = dbc.Card([
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H2("NUMBER", id = "card1_group"),
-							html.H4("Tranche d'âge la plus représentée",
+							html.H4("Nom commune :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card1_pop"),
-							html.H4("Nombre de personnes faisant partie de cette tranche d'âge.", className="card-text")
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px', 'text-align' : 'center'})
+							html.H2("NUMBER", id = "card1_nom"),
+							html.H4("Code INSEE :",
+									className="card-text"),
+							html.H2("NUMBER", id = "card1_insee"),
+							html.H4("Code postal :",
+									className="card-text"),
+							html.H2("NUMBER", id="card1_postal"),
+							html.H4("Superficie (en km²) :",
+									className="card-text"),
+							html.H2("NUMBER", id="card1_superficie")
+						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
+																 'text-align' : 'center'}
+						)
 					),
 					dbc.Col(
 						dbc.Card([
+							html.H4("La tranche d'âge la plus représentée :", className='card-text'),
 							html.H2("NUMBER", id = "card2_group"),
-							html.H4("Tranche d'âge la plus représentée chez la femme",
+							html.H4("Nombre de personnes faisant partie de cette tranche d'âge :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card2_pop"),
-							html.H4("Nombre de femmes faisant partie de cette tranche d'âge.", className="card-text")
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px', 'text-align' : 'center'})
+							html.H2("NUMBER", id = "card2_pop")
+						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
+																 'text-align' : 'center'}
+						)
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H2("NUMBER", id = "card3_group"),
-							html.H4("Tranche d'âge la plus représentée chez l'homme",
+							html.H4("Population :",
 									className="card-text"),
 							html.H2("NUMBER", id = "card3_pop"),
-							html.H4("Nombre d'hommes faisant partie de cette tranche d'âge.", className="card-text")
+							html.H4("Densité de population (hab/km²) :", className="card-text"),
+							html.H2("NUMBER", id = "card3_densite")
 						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '0px', 'text-align' : 'center'})
 					)
 				]),
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H2("NUMBER", id = "card4"),
-							html.H4("Nombre de femme faisant partie de la tranche d'âge la plus représentée chez la femme.",
-									className="card-text"),
+							html.H4(
+								"Nombre de commerces non liés à la nourriture :",
+								className="card-text"),
+							html.H2("NUMBER", id = "card4_shop"),
+							html.H4(
+								"Nombre de commerces liés à la nourriture :",
+								className="card-text"),
+							html.H2("NUMBER", id="card4_shop_food")
 						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
 					),
 					dbc.Col(
@@ -149,52 +165,6 @@ com_cards = dbc.Card([
 						dbc.Card([
 							html.H2("NUMBER", id = "card6"),
 							html.H4("Nombre d'hommes faisant partie de la tranche d'âge la plus représentée chez l'homme.",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER"),
-							html.H4("This is the description of what the big number corresponds to",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
-					),
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER"),
-							html.H4("This is the description of what the big number corresponds to",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
-					),
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER"),
-							html.H4("This is the description of what the big number corresponds to",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
-					)
-				]),
-				dbc.Row([
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER"),
-							html.H4("This is the description of what the big number corresponds to",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
-					),
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER"),
-							html.H4("This is the description of what the big number corresponds to",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
-					),
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER"),
-							html.H4("This is the description of what the big number corresponds to",
 									className="card-text"),
 						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
 					)
@@ -244,7 +214,7 @@ modal = dbc.Modal(
 					html.P("Les communes sont cumulables pour le mode Multi-millésimes, ainsi le dashboard affichera les indicateurs de chaque commune et la somme des indicateurs de ces dernières."),
 					html.P("Le mode annuel permet quant à lui d'afficher des indicateurs plus précis sur une commune à une date donnée."),
 					html.Br(),
-					html.P("La carte proposée à partir des données DVF affiche le prix moyen du m2 de logement pour la commune sélectionnée. De plus, elle permet de comparer la valeur foncière de la commune avec le reste du département.")
+					html.P("La carte proposée à partir des données DVF affiche le prix moyen du m² de logement pour la commune sélectionnée. De plus, elle permet de comparer la valeur foncière de la commune avec le reste du département.")
 				]),
 				dbc.ModalFooter(
 					dbc.Button(
@@ -406,12 +376,29 @@ def update_map_modal(selector):
 ########################################################
 
 @app.callback([
-				dash.dependencies.Output('card1_group', 'children'),
-				dash.dependencies.Output('card1_pop', 'children'),
+				dash.dependencies.Output('card1_nom', 'children'),
+				dash.dependencies.Output('card1_insee', 'children'),
+				dash.dependencies.Output('card1_postal', 'children'),
+				dash.dependencies.Output('card1_superficie', 'children'),
+			],
+			[
+				dash.dependencies.Input('communes', 'value')
+			 ])
+
+def stats_commune(com):
+
+	city = com[0].lower()
+
+	nom = s.com_info(city)[0]
+	code_postal = s.com_info(city)[1]
+	code_insee = s.com_info(city)[2]
+	superficie = s.get_superficie_pop_densite(city)[0]
+
+	return [nom, code_postal, code_insee, superficie]
+
+@app.callback([
 				dash.dependencies.Output('card2_group', 'children'),
 				dash.dependencies.Output('card2_pop', 'children'),
-				dash.dependencies.Output('card3_group', 'children'),
-				dash.dependencies.Output('card3_pop', 'children')
 			],
 			[
 			  dash.dependencies.Input('years', 'value'),
@@ -427,15 +414,41 @@ def stats_age_group(year, com):
 	most_represented_age_group = [age_group[0][1]," - ", age_group[0][2], "ans"]
 	population_in_most_represented_age_group = age_group[0][0]
 
-	most_represented_age_group_women = [age_group[1][1]," - ", age_group[1][2], "ans"]
-	population_in_most_represented_age_group_women = age_group[1][0]
+	return [most_represented_age_group, population_in_most_represented_age_group]
 
-	most_represented_age_group_men = [age_group[2][1]," - ", age_group[2][2], "ans"]
-	population_in_most_represented_age_group_men = age_group[2][0]
+@app.callback([
+				dash.dependencies.Output('card3_pop', 'children'),
+				dash.dependencies.Output('card3_densite', 'children'),
+			],
+			[
+			  dash.dependencies.Input('communes', 'value')
+			])
 
-	return [most_represented_age_group, population_in_most_represented_age_group,
-			most_represented_age_group_women, population_in_most_represented_age_group_women,
-			most_represented_age_group_men,	population_in_most_represented_age_group_men]
+def stats_superficie(com):
+
+	city = com[0].lower()
+
+	pop = s.get_superficie_pop_densite(city)[1]
+	densite = s.get_superficie_pop_densite(city)[2]
+
+	return [pop, densite]
+
+@app.callback([
+				dash.dependencies.Output('card4_shop', 'children'),
+				dash.dependencies.Output('card4_shop_food', 'children'),
+			],
+			[
+			  dash.dependencies.Input('communes', 'value')
+			 ])
+
+def stats_commerce(com):
+
+	city = com[0].lower()
+
+	shop = s.commerces_com(city)['other']
+	shop_food = s.commerces_com(city)['food']
+
+	return [shop, shop_food]
 
 ########################################################
 #################### UPDATE GRAPHES ####################

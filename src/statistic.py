@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import sqlite3
 import pandas as pd
+import requests
 
 
 class Statistic():
@@ -10,6 +11,32 @@ class Statistic():
 		parent_dir = Path(os.getcwd()).parent
 		self.db = str(Path.joinpath(parent_dir, "data", "population_1968-2016.db"))
 
+	def auth_api(self, url):
+		token_auth = '0f045f2a33890a5e3b11911fff10efc9918c0785d7665299a8c8fa1d'
+
+		headers = {'Authorization': token_auth}
+		response = requests.get(url, headers=headers)
+		return response
+
+	def com_info(self, city):
+		url = 'https://data.opendatasoft.com/api/records/1.0/search/?dataset=code-postal-code-insee-2015%40public&q={}'
+		response = self.auth_api(url.format(city)).json()
+
+		insee_code = response['records'][0]['fields']['insee_com']
+		nom_com = response['records'][0]['fields']['nom_com']
+		code_postal = response['records'][0]['fields']['code_postal']
+
+		return(nom_com, code_postal, insee_code)
+
+	def get_superficie_pop_densite(self,city):
+		url2 = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code%2Cnom%2Csurface%2CcodesPostaux%2Cpopulation'
+		response2 = self.auth_api(url2.format(city)).json()
+
+		superficie = round(response2[0]['surface'] / 10**2, 3)
+		pop = response2[0]['population']
+		densite = round(pop / (superficie * 10**2), 3)
+
+		return [superficie, pop, densite]
 
 	def get_dep_name(self, dep):
 		parent_dir = Path(os.getcwd()).parent
