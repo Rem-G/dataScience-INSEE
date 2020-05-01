@@ -419,7 +419,6 @@ def update_map_modal(selector):
 			 ])
 
 def stats_age_group(year, com):
-	print(s.commerces_com(com[0]))
 	if(year == '/'):
 		year = 2016
 
