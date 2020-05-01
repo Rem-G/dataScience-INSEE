@@ -36,6 +36,9 @@ STATIC_PATH = Path.joinpath(parent_dir, "static")
 s = Statistic()
 years = s.get_years()
 
+print(s.commerces_com('Annecy'))
+
+
 years_options = [{'label': 'Multi millésimes', 'value': '/'}]
 for year in years:
 	years_options.append({'label': year, 'value': str(year)})
@@ -751,5 +754,5 @@ def update_graph_ages(selected_commune, year):
 
 	return figure
 
-# if __name__ == '__main__':
-# 	app.run_server(debug=True)
+if __name__ == '__main__':
+	app.run_server(debug=True)

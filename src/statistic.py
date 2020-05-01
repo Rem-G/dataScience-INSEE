@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 import sqlite3
+import pandas as pd
+
 
 class Statistic():
 
@@ -259,7 +261,28 @@ class Statistic():
 
 		return result_dict
 
+	def commerces_com(self, commune):
+			filename = str(Path(os.getcwd()).parent) + "/data/equip-serv-commerce-com-2018.xls"
+			df = pd.read_excel(filename, skiprows = range(4), usecols = 'B:AB')
+			line  = df.loc[df['Libellé commune ou ARM']==commune]
+			nb_commerces_food = 0
+			nb_commerces_other = 0
 
+
+			for label, content in line.items():
+				if label not in ['Libellé commune ou ARM', 'Région', 'Département']:
+					if label in ['Hypermarché', 'Supermarché', 'Supérette', 'Epicerie', 'Boulangerie', 'Boucherie charcuterie', 'Produits surgelés', 'Poissonnerie']:
+						nb_commerces_food += content.values[0]
+					else:
+						nb_commerces_other += content.values[0]
+
+			return {'food': nb_commerces_food, 'other': nb_commerces_other}
+
+
+
+
+
+		
 
 
 
