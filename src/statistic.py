@@ -255,7 +255,6 @@ class Statistic():
 
 
 	def pop_stats_all_period(self, year, city):
-
 		filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
 		conn = sqlite3.connect(filename)
 		cursor = conn.cursor()
