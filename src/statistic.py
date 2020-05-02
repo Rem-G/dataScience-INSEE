@@ -1,12 +1,46 @@
 import os
 from pathlib import Path
 import sqlite3
+import pandas as pd
+import requests
+
 
 class Statistic():
 
 	def __init__(self):
 		parent_dir = Path(os.getcwd()).parent
 		self.db = str(Path.joinpath(parent_dir, "data", "population_1968-2016.db"))
+
+	def auth_api(self, url):
+		token_auth = '0f045f2a33890a5e3b11911fff10efc9918c0785d7665299a8c8fa1d'
+
+		headers = {'Authorization': token_auth}
+		response = requests.get(url, headers=headers)
+		return response
+
+	def com_info(self, city, dep):
+		url = 'https://geo.api.gouv.fr/communes/?nom={}&fields=code,nom,surface,codesPostaux,population,departement&json&format=json'
+
+		if 'arrondissement'.upper() in city.upper():
+			city = city.split(' ')[0]
+
+		response = self.auth_api(url.format(city)).json()
+
+		data = {}
+		for result in response:
+			if result['nom'].upper() == city.upper() and result['departement']['code'] == dep:
+				data = result
+
+		insee_code = data['code']
+		nom_com = data['nom']
+		code_postal = data['codesPostaux'][0]
+
+		superficie = round(data['surface'] / 10**2, 3)
+		pop = data['population']
+		densite = round(pop / (superficie * 10**2), 3)
+
+
+		return {'nom': nom_com, 'code_postal': code_postal, 'code_insee': insee_code, 'superficie': superficie, 'pop': pop, 'densite': densite}
 
 
 	def get_dep_name(self, dep):
@@ -80,9 +114,11 @@ class Statistic():
 
 		for age in range(0, 91, 5):
 
-			pop = self.pop_stats(year, age, city)[0]
-			pop_w = self.pop_stats(year, age, city)[1]
-			pop_m = self.pop_stats(year, age, city)[2]
+			res = self.pop_stats(year, age, city)
+
+			pop = res[0]
+			pop_w = res[1]
+			pop_m = res[2]
 
 			if pop >= age_group[0]:
 				age_group[0] = pop
@@ -140,6 +176,63 @@ class Statistic():
 					result[columns[i]] = row[i]
 
 		return result
+
+	def get_actif(self, city, year):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+		nb_travailleur = 0
+
+		for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+			for i in range(2, len(row)):
+				if row[i] != 'None':
+					nb_travailleur += float(row[i])
+
+		return nb_travailleur
+
+	def get_chomeur(self, city, year):
+
+		filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+		nb_chomeur = 0
+		city = str(city)
+
+		for row in cursor.execute("SELECT Agriculteurs_Chomeurs_RP" + str(year) + ", \"Artisans,_commercants,_chefs_d'entreprise_Chomeurs_RP" + str(year) + "\", Cadres_et_professions_intellectuelles_superieures_Chomeurs_RP" + str(year) + ", Professions_intermediaires_Chomeurs_RP" + str(year) + ", Employes_Chomeurs_RP" + str(year) + ", Ouvriers_Chomeurs_RP" + str(year) + " FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+			for value in row:
+				if value != 'None':
+					nb_chomeur += float(value)
+
+		return nb_chomeur
+
+	def category_soc_pro_dep(self, year, city):
+
+			filename = str(Path(os.getcwd()).parent) + "/data/population_social_categories_1968-2016.db"
+			conn = sqlite3.connect(filename)
+			cursor = conn.cursor()
+
+			table = "COM_" + str(year)
+			dep = self.category_soc_pro(year, city)['Departement_en_geographie_2018']
+			columns = [row[0] for row in cursor.execute("SELECT name FROM PRAGMA_TABLE_INFO('" + table + "')")]
+			result = {}
+
+			for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Departement_en_geographie_2018 LIKE " + dep):
+				for i in range(2, len(row)):
+					if row[i] != 'None' or row[i] is not None:
+						if columns[i] in result.keys():
+							result[columns[i]] += float(str(row[i]).replace('None', '0'))
+						else:
+							result[columns[i]] = float(str(row[i]).replace('None', '0'))
+
+			max_key = max(result, key = result.get)
+			max_value = int(max(result.values()))
+
+			return max_key, max_value
 
 	def category_soc_pro_max_dep(self, year, city):
 
@@ -199,5 +292,65 @@ class Statistic():
 				employment[key] = result[key]
 
 		return {'years': [table[0].split('_')[1] for table in tables], 'employment': employment, 'unemployment': unemployment}
+
+
+	def pop_stats_all_period(self, year, city):
+		filename = str(Path(os.getcwd()).parent) + "/data/population_1968-2016.db"
+		conn = sqlite3.connect(filename)
+		cursor = conn.cursor()
+
+		table = "COM_" + str(year)
+
+		columns = [row[0] for row in cursor.execute("SELECT name FROM PRAGMA_TABLE_INFO('" + table + "')")]
+		columns.remove('Departement_en_geographie_2018')
+		columns.remove('Libelle_de_commune')
+		columns.remove('population')
+		columns.remove('pop_men')
+		columns.remove('pop_women')
+
+		sql = "SELECT "
+		for column in columns:
+			sql += table+".'"+column+"', "
+
+		sql = sql[:len(sql)-2]
+		sql = sql + " FROM {} WHERE Libelle_de_commune = '{}'".format(table, city)
+
+		cursor.execute(sql)
+
+		result = cursor.fetchall()[0]
+
+		index = 0
+		result_dict = dict()
+		for r in result:
+			result_dict[columns[index]] = int(float(r))
+			index += 1
+
+		return result_dict
+
+	def commerces_com(self, commune, dep):
+			filename = str(Path(os.getcwd()).parent) + "/data/equip-serv-commerce-com-2018.xls"
+			df = pd.read_excel(filename, skiprows = range(4), usecols = 'B:AB')
+
+			dep_lines  = df.loc[df['Département'].str.upper() == dep.upper()]
+			line = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
+
+			nb_commerces_food = 0
+			nb_commerces_other = 0
+
+			for label, content in line.items():
+				if label not in ['Libellé commune ou ARM', 'Région', 'Département']:
+					if label in ['Hypermarché', 'Supermarché', 'Supérette', 'Epicerie', 'Boulangerie', 'Boucherie charcuterie', 'Produits surgelés', 'Poissonnerie']:
+						nb_commerces_food += content.values[0]
+					else:
+						nb_commerces_other += content.values[0]
+
+			return {'food': nb_commerces_food, 'other': nb_commerces_other}
+
+
+
+
+
+		
+
 
 
