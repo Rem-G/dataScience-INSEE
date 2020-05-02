@@ -100,77 +100,77 @@ navbar = dbc.Navbar([
 				),
 		], sticky='bottom', color="#484848")
 
+# card colors = info | success | warning | danger | rose.
+
 com_cards = dbc.Card([
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H4("Commune :",
+							html.H5("Commune :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card1_nom"),
-							html.H4("Code INSEE :",
+							html.H3("NUMBER", id = "card1_nom"),
+							html.H5("Code INSEE :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card1_insee"),
-							html.H4("Code postal :",
+							html.H3("NUMBER", id = "card1_insee"),
+							html.H5("Code postal :",
 									className="card-text"),
-							html.H2("NUMBER", id="card1_postal"),
-							html.H4("Superficie (km²) :",
+							html.H3("NUMBER", id="card1_postal"),
+							html.H5("Superficie (km²) :",
 									className="card-text"),
-							html.H2("NUMBER", id="card1_superficie")
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
-																 'text-align' : 'center'}
+							html.H3("NUMBER", id="card1_superficie")
+						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
+												'text-align' : 'center',
+												'background' : 'linear-gradient(90deg, rgba(41,106,208,1) 0%, rgba(0,74,182,1) 100%)'}
 						)
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("Tranche d'âge la plus représentée :", className='card-text'),
-							html.H2("NUMBER", id = "card2_group"),
-							html.H4("Nombre de personnes faisant partie de cette tranche d'âge :",
+							html.H5("Tranche d'âge la plus représentée :", className='card-text'),
+							html.H3("NUMBER", id = "card2_group"),
+							html.H5("Nombre de personnes faisant partie de cette tranche d'âge :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card2_pop")
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
-																 'text-align' : 'center'}
+							html.H3("NUMBER", id = "card2_pop")
+						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
+												'text-align' : 'center',
+												'background' : 'linear-gradient(90deg, rgba(41,106,208,1) 0%, rgba(0,74,182,1) 100%)'}
 						)
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("Population :",
+							html.H5("Population :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card3_pop"),
-							html.H4("Densité de population (hab/km²) :", className="card-text"),
-							html.H2("NUMBER", id = "card3_densite")
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '0px', 'text-align' : 'center'})
+							html.H3("NUMBER", id = "card3_pop"),
+							html.H5("Densité de population (hab/km²) :", className="card-text"),
+							html.H3("NUMBER", id = "card3_densite")
+						], inverse=True, style={'border-radius': '0.5em', 'margin-top': '0px', 'text-align' : 'center',
+												'background' : 'linear-gradient(90deg, rgba(41,106,208,1) 0%, rgba(0,74,182,1) 100%)'})
 					)
 				], align='center'),
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H4(
+							html.H5(
 								"Nombre de commerces alimentaires :",
 								className="card-text"),
-							html.H2("NUMBER", id="card4_shop_food"),
-							html.H4(
+							html.H3("NUMBER", id="card4_shop_food"),
+							html.H5(
 								"Nombre de commerces non alimentaires :",
 								className="card-text"),
-							html.H2("NUMBER", id = "card4_shop"),
+							html.H3("NUMBER", id = "card4_shop"),
 
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
+						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center',
+												'background' : 'linear-gradient(90deg, rgba(255,143,64,1) 0%, rgba(248,72,72,1) 100%)'})
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("Taux de chômage :",
+							html.H5("Taux de chômage :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card5_taux"),
-							html.H4("soit", className="card-text"),
-							html.H2("NUMBER", id="card5_nb"),
-							html.H4("personnes"),
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
-					),
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER", id = "card6"),
-							html.H4("Text",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
+							html.H3("NUMBER", id = "card5_taux"),
+							html.H5("soit", className="card-text"),
+							html.H3("NUMBER", id="card5_nb"),
+							html.H5("personnes"),
+						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center',
+												'background' : 'linear-gradient(90deg, rgba(255,143,64,1) 0%, rgba(248,72,72,1) 100%)'})
 					)
 				], align='center')
 			], style={'margin-top': '20px', 'border-radius':'0.5em'}, color='transparent')
