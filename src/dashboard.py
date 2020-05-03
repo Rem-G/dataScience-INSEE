@@ -788,4 +788,4 @@ def update_graph_ages(selected_commune, year):
 	return figure
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+	app.run_server(debug=False)
