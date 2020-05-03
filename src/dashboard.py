@@ -456,7 +456,7 @@ def stats_commerce(com, dep):
 	else:
 		city = com[0]
 
-	res = s.commerces_com(city, dep[0])
+	res = s.commerces_com(com[0], dep[0])
 
 	shop = res['other']
 	shop_food = res['food']

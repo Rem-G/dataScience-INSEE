@@ -324,7 +324,7 @@ class Statistic():
 
 	def commerces_com(self, commune, dep):
 			filename = str(Path(os.getcwd()).parent) + "/data/equip-serv-commerce-com-2018.csv"
-			df = pd.read_csv(filename, skiprows = range(4), sep=';')
+			df = pd.read_csv(filename, sep=';', low_memory=False)
 
 			dep_lines  = df.loc[df['Département'].str.upper() == dep.upper()]
 			line = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
@@ -333,7 +333,7 @@ class Statistic():
 			nb_commerces_other = 0
 
 			for label, content in line.items():
-				if label not in ['CODGEO', 'Libellé commune ou ARM', 'Région', 'Département']:
+				if label not in ['Unnamed: 0', 'CODGEO', 'Libellé commune ou ARM', 'Région', 'Département']:
 					if label in ['Hypermarché', 'Supermarché', 'Supérette', 'Epicerie', 'Boulangerie', 'Boucherie charcuterie', 'Produits surgelés', 'Poissonnerie']:
 						nb_commerces_food += int(content.values[0])
 					else:
