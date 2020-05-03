@@ -1,8 +1,8 @@
 
 # Projet DataScience
 
-Ce projet a pour but la création d'un dashboard offrant différents indicateurs communaux.
-L'ensemble des communes de France métropolitaine et d'Outre-mer sont proposées.
+Ce projet a pour but la création d'un dataset offrant différents indicateurs communaux.
+L'ensemble des communes de France métropolitaine et d'Outre-mer sont disponibles.
 
 Les indicateurs suivants sont disponibles :
 
