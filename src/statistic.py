@@ -62,12 +62,7 @@ class Statistic():
 		c.execute("""SELECT Departement_en_geographie_2018 FROM COM_2016 WHERE Departement_en_geographie_2018 != 'DR18'""")
 		deps = c.fetchall()
 
-		deps_list = list()
-
-		for dep in set(deps):
-			deps_list.append(dep[0])
-
-		return deps_list
+		return [dep[0] for dep in set(deps)]
 
 
 	def get_communes(self, dep):
