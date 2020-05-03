@@ -112,7 +112,7 @@ com_cards = dbc.Card([
 							html.H5("Code INSEE :",
 									className="card-text"),
 							html.H3("NUMBER", id = "card1_insee"),
-							html.H5("Code postal :",
+							html.H5("Codes postaux :",
 									className="card-text"),
 							html.H3("NUMBER", id="card1_postal"),
 							html.H5("Superficie (km²) :",

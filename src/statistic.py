@@ -33,7 +33,7 @@ class Statistic():
 
 		insee_code = data['code']
 		nom_com = data['nom']
-		code_postal = data['codesPostaux'][0]
+		code_postal = " ".join(data['codesPostaux'])
 
 		superficie = round(data['surface'] / 10**2, 3)
 		pop = data['population']
