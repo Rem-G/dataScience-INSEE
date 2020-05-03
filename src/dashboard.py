@@ -96,7 +96,7 @@ navbar = dbc.Navbar([
 					className="flex-nowrap",
 					style={'width': '100%'}
 				),
-		], sticky='top', color="rgba(48, 48, 48, 1)")
+		], sticky='d', color="rgba(48, 48, 48, 1)")
 
 # card colors = info | success | warning | danger | rose.
 
@@ -799,4 +799,4 @@ def update_graph_ages(selected_commune, year):
 	return figure
 
 if __name__ == '__main__':
-	app.run_server(debug=False)
+	app.run_server(debug=True)
