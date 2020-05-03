@@ -202,10 +202,7 @@ body_multi = [dbc.Row([
 body_year = dbc.Row([
 				dbc.Col(
 					dbc.Card(
-						dcc.Graph(id='graph-evolution-pop'),
-						color="transparent",
-						outline=True,
-						style={'border-radius':'0.5em'}
+						dcc.Graph(id='graph-evolution-pop'), color="light", outline=True, style={'border-radius':'0.5em'}
 					)
 				, width=3, align="center"),
 
