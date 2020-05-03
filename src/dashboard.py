@@ -562,7 +562,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = x_years,
 			y = y_pop_women,
 			name = commune+' Femmes',
-			marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[0]),
+			marker = dict(color = DEFAULT_PLOTLY_COLORS[0]),
 			visible = 'legendonly'
 			)
 		)
