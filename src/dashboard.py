@@ -219,6 +219,7 @@ modal = dbc.Modal(
 					html.P("- Annuel : affiche des indicateurs plus précis sur une commune à une date donnée"),
 					html.P("Pour chaque graphique les courbes peuvent être activées ou désactivées en cliquant sur leur nom dans la légende."),
 					html.P("La carte proposée à partir des données DVF est cliquable, elle permet d'obtenir la valeur foncière moyenne d'un m2 de logement dans une commune mais aussi de comparer cette valeur avec les autres communes du département."),
+					html.P("Sources : Insee, DVF, geo.api.gouv.fr, cadastre.data.gouv.fr")
 
 				]),
 				dbc.ModalFooter(
