@@ -213,12 +213,13 @@ modal = dbc.Modal(
 			[
 				dbc.ModalHeader("Dash 3 en 1 - Utilisation"),
 				dbc.ModalBody([
-					html.P("Ce dashboard propose différents indicateurs liés à une ou plusieurs communes de France métropolitaine et d'Outre-mer."),
-					html.Br(),
-					html.P("Les communes sont cumulables pour le mode Multi-millésimes, ainsi le dashboard affichera les indicateurs de chaque commune et la somme des indicateurs de ces dernières."),
-					html.P("Le mode annuel permet quant à lui d'afficher des indicateurs plus précis sur une commune à une date donnée."),
-					html.Br(),
-					html.P("La carte proposée à partir des données DVF affiche le prix moyen du m² de logement pour la commune sélectionnée. De plus, elle permet de comparer la valeur foncière de la commune avec le reste du département.")
+					html.P("Ce dashboard propose des indicateurs à partir de différentes données sur une ou plusieurs communes de France métropolitaine et d'Outre-mer."),
+					html.P("Deux modes disponibles :"),
+					html.P("- Multi-millésimes : affiche les indicateurs de chaque commune ainsi que la somme de ces derniers"),
+					html.P("- Annuel : affiche des indicateurs plus précis sur une commune à une date donnée"),
+					html.P("Pour chaque graphique les courbes peuvent être activées ou désactivées en cliquant sur leur nom dans la légende."),
+					html.P("La carte proposée à partir des données DVF est cliquable, elle permet d'obtenir la valeur foncière moyenne d'un m2 de logement dans une commune mais aussi de comparer cette valeur avec les autres communes du département."),
+
 				]),
 				dbc.ModalFooter(
 					dbc.Button(
