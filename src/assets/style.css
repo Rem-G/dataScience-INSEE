@@ -6,9 +6,6 @@
     color: white;
 }
 
-.is-open>.Select-control{
-	background: red;
-}
 .Select-menu-outer{
 	background: rgba(48, 48, 48, 1);
 	color: white;
@@ -21,4 +18,8 @@
 
 .VirtualizedSelectOption:hover{
 	background: rgba(65, 95, 121, 0.5);
+}
+
+.Select-input input{
+	color: white;
 }

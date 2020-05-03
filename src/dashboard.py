@@ -14,10 +14,7 @@ from data_manage import *
 
 DataManage().manage(dbreset = False, mapsreset = False)
 
-#html.I(className="fa fa-camera-retro fa-lg"),
-
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 app.title = 'Dash 3 en 1'
 app.config['suppress_callback_exceptions']=True
 
@@ -99,7 +96,7 @@ navbar = dbc.Navbar([
 					className="flex-nowrap",
 					style={'width': '100%'}
 				),
-		], sticky='bottom', color="rgba(48, 48, 48, 1)")
+		], sticky='top', color="rgba(48, 48, 48, 1)")
 
 # card colors = info | success | warning | danger | rose.
 
@@ -109,16 +106,16 @@ com_cards = dbc.Card([
 						dbc.Card([
 							html.Span("Commune :",
 									className="card-text"),
-							html.Span("NUMBER", id = "card1_nom", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id = "card1_nom", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("Code INSEE :",
 									className="card-text"),
-							html.Span("NUMBER", id = "card1_insee", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id = "card1_insee", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("Codes postaux :",
 									className="card-text"),
-							html.Span("NUMBER", id="card1_postal", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id="card1_postal", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("Superficie (km²) :",
 									className="card-text"),
-							html.Span("NUMBER", id="card1_superficie", style={'font-weight': 'bold'}), 
+							html.Span("NUMBER", id="card1_superficie", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}), 
 						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
 												'text-align' : 'center',
 												'background' : 'rgba(48, 48, 48, 1)',
@@ -128,10 +125,10 @@ com_cards = dbc.Card([
 					dbc.Col(
 						dbc.Card([
 							html.Span("Tranche d'âge la plus représentée :", className='card-text'),
-							html.Span("NUMBER", id = "card2_group", style={'font-weight': 'bold'}),
-							html.Span("Nombre de personnes faisant partie de cette tranche d'âge :",
+							html.Span("NUMBER", id = "card2_group", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Nombre de personnes dans cette tranche d'âge :",
 									className="card-text"),
-							html.Span("NUMBER", id = "card2_pop", style={'font-weight': 'bold'})
+							html.Span("NUMBER", id = "card2_pop", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'})
 						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
 												'text-align' : 'center',
 												'background' : 'rgba(48, 48, 48, 1)',
@@ -142,9 +139,9 @@ com_cards = dbc.Card([
 						dbc.Card([
 							html.Span("Population :",
 									className="card-text"),
-							html.Span("NUMBER", id = "card3_pop", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id = "card3_pop", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("Densité de population (hab/km²) :", className="card-text"),
-							html.Span("NUMBER", id = "card3_densite", style={'font-weight': 'bold'})
+							html.Span("NUMBER", id = "card3_densite", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'})
 						], inverse=True, style={'border-radius': '0.5em',
 												'text-align' : 'center',
 												'background' : 'rgba(48, 48, 48, 1)',
@@ -158,10 +155,10 @@ com_cards = dbc.Card([
 							html.Span(
 								"Nombre de commerces alimentaires :",
 								className="card-text"),
-							html.Span("NUMBER", id="card4_shop_food", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id="card4_shop_food", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("Nombre de commerces non alimentaires :",
 								className="card-text"),
-							html.Span("NUMBER", id = "card4_shop", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id = "card4_shop", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 
 						], inverse=True, style={'border-radius':'0.5em',
 												'text-align' : 'center',
@@ -173,9 +170,9 @@ com_cards = dbc.Card([
 						dbc.Card([
 							html.Span("Taux de chômage :",
 									className="card-text"),
-							html.Span("NUMBER", id = "card5_taux", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id = "card5_taux", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("soit", className="card-text"),
-							html.Span("NUMBER", id="card5_nb", style={'font-weight': 'bold'}),
+							html.Span("NUMBER", id="card5_nb", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 							html.Span("personnes"),
 						], inverse=True, style={'border-radius':'0.5em',
 												'text-align' : 'center',
@@ -280,7 +277,7 @@ app.layout = html.Div([
 						align = 'center'
 					),
 					dbc.Col([
-						html.P(["Valeur foncière logement - Donnée DVF ", dbc.Button('Agrandir', style={'height': 24, 'font-size': 10, 'background-color': 'rgba(0,126,255,1)'}, id="p_map")], style={'text-align': 'center', 'height': 10}),
+						html.P(["Valeur foncière logement - Donnée DVF ", dbc.Button('Agrandir', style={'height': 24, 'font-size': 10, 'background-color': 'rgba(0, 173, 240, 0.8)'}, id="p_map")], style={'text-align': 'center', 'height': 10}),
 						html.Div(id='map')])
 				], style={'margin-left': '5px', 'margin-right': '5px'}),
 
@@ -782,9 +779,7 @@ def update_graph_ages(selected_commune, year):
 				marker = dict(color='rgba(55, 83, 109, 1)'),
 				)
 			)
-
 			n += 5
-
 
 	figure =  {
 		'data': traces,
@@ -801,7 +796,6 @@ def update_graph_ages(selected_commune, year):
 			height = 300,
 			showlegend = False,
 			barmode='stack',
-			#bargroupgap=0.1,
 		),
 	}
 
