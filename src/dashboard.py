@@ -650,7 +650,7 @@ def update_graph_evolution_soc_pro(selected_commune):
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			title = "Evolution des catégories socio-profesionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
+			title = "Evolution des catégories socio-professionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
 			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
@@ -731,7 +731,7 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 		'data': traces,
 		'layout': dict(
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
-			title = "Catégories socio-profesionnelles à {} en {}".format(selected_commune[0], year),
+			title = "Catégories socio-professionnelles à {} en {}".format(selected_commune[0], year),
 			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)', 'visible': False},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
