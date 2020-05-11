@@ -90,9 +90,6 @@ def user_request():
 
 	return [nom_com, dep_com]
 
-	# data.add_departement()
-	# A décommenter si la table 'Departement' de la base 'population_social_categories_1968-2016.db' n'est pas créée.
-
 def version_console():
 	"""
 	Outputs a selecion of indicators. To find more head towards the Dashboard version
@@ -103,8 +100,6 @@ def version_console():
 	data = Data()
 	com_dep = user_request()
 	parent_dir = str(Path(os.getcwd()).parent)
-
-	population = data.read_db_population(str(parent_dir) + "/data/population_1968-2016.db", "2011", com_dep[0], com_dep[1])
 
 	year = int(input("\nChoose a year (1968/1975/1982/1990/1999/2006/2011/2016) :\n"))
 	age = int(input("\nChoose a starting age (from 0 to 90 five by five) :\n"))

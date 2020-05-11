@@ -33,22 +33,22 @@ class Statistic():
 
 		response = self.auth_api(url.format(city)).json()
 
-		data = {}
-		for result in response:
-			if result['nom'].upper() == city.upper() and result['departement']['code'] == dep:
-				data = result
+		if len(response) >= 1:
+			data = {}
+			for result in response:
+				if result['nom'].upper() == city.upper() and result['departement']['code'] == dep:
+					data = result
 
-		insee_code = data['code']
-		nom_com = data['nom']
-		code_postal = " ".join(data['codesPostaux'])
+			insee_code = data['code']
+			nom_com = data['nom']
+			code_postal = " ".join(data['codesPostaux'])
 
-		superficie = round(data['surface'] / 10**2, 3)
-		pop = data['population']
-		densite = round(pop / (superficie * 10**2), 3)
+			superficie = round(data['surface'] / 10**2, 3)
+			pop = data['population']
+			densite = round(pop / (superficie * 10**2), 3)
 
-
-		return {'nom': nom_com, 'code_postal': code_postal, 'code_insee': insee_code, 'superficie': superficie, 'pop': pop, 'densite': densite}
-
+			return {'nom': nom_com, 'code_postal': code_postal, 'code_insee': insee_code, 'superficie': superficie, 'pop': pop, 'densite': densite}
+		return {'nom': "Commune fusionnée, les données pour l'année courante ne sont pas disponibles", 'code_postal': None, 'code_insee': None, 'superficie': None, 'pop': None, 'densite': None}
 
 	def get_dep_name(self, dep):
 		"""
@@ -166,7 +166,9 @@ class Statistic():
 				age_group_m[1] = age
 				age_group_m[2] = age + 9
 
-		return (age_group, age_group_w, age_group_m)
+		if age_group != [0]*3 or age_group_w != [0]*3 or age_group_m != [0]*3:
+			return (age_group, age_group_w, age_group_m)
+		return (None, None, None)
 
 	def pop_stats(self, year, age, city):
 		"""
@@ -184,19 +186,23 @@ class Statistic():
 		table = "COM_" + str(year)
 		sum_women, sum_men = 0, 0
 
-		if age == 90 : # The name of the column is different once passed 90 years old
-			for row in cursor.execute("SELECT De_" + str(age) + "_a_" + str(age + 4) + "_ans_Femmes_RP" + str(year) + ", De_" + str(age) + "_a_" + str(age + 4) + "_ans_Hommes_RP" + str(year) + ", " + table + ".'" + str(age + 5) + "_ans_et_plus_Femmes_RP" + str(year) + "', " + table + ".'" + str(age + 5) + "_ans_et_plus_Hommes_RP" + str(year) + "' FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
-				if str(row[0]) != 'None' and str(row[1]) != 'None':
-					sum_women += float(str(row[0])) + float(str(row[2]))
-					sum_men += float(str(row[1])) + float(str(row[3]))
+		try:
+			if age == 90 : # The name of the column is different once passed 90 years old
+				for row in cursor.execute("SELECT De_" + str(age) + "_a_" + str(age + 4) + "_ans_Femmes_RP" + str(year) + ", De_" + str(age) + "_a_" + str(age + 4) + "_ans_Hommes_RP" + str(year) + ", " + table + ".'" + str(age + 5) + "_ans_et_plus_Femmes_RP" + str(year) + "', " + table + ".'" + str(age + 5) + "_ans_et_plus_Hommes_RP" + str(year) + "' FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+					if str(row[0]) != 'None' and str(row[1]) != 'None':
+						sum_women += float(str(row[0])) + float(str(row[2]))
+						sum_men += float(str(row[1])) + float(str(row[3]))
 
-		else:
-			for row in cursor.execute("SELECT De_" + str(age) + "_a_" + str(age + 4) + "_ans_Femmes_RP" + str(year) + ", De_" + str(age) + "_a_" + str(age + 4) + "_ans_Hommes_RP" + str(year) + ", De_" + str(age + 5) + "_a_" + str(age + 9) + "_ans_Femmes_RP" + str(year) + ", De_" + str(age + 5) + "_a_" + str(age + 9) + "_ans_Hommes_RP" + str(year) + " FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
-				if str(row[0]) != 'None' and str(row[1]) != 'None':
-					sum_women += float(str(row[0])) + float(str(row[2]))
-					sum_men += float(str(row[1])) + float(str(row[3]))
+			else:
+				for row in cursor.execute("SELECT De_" + str(age) + "_a_" + str(age + 4) + "_ans_Femmes_RP" + str(year) + ", De_" + str(age) + "_a_" + str(age + 4) + "_ans_Hommes_RP" + str(year) + ", De_" + str(age + 5) + "_a_" + str(age + 9) + "_ans_Femmes_RP" + str(year) + ", De_" + str(age + 5) + "_a_" + str(age + 9) + "_ans_Hommes_RP" + str(year) + " FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+					if str(row[0]) != 'None' and str(row[1]) != 'None':
+						sum_women += float(str(row[0])) + float(str(row[2]))
+						sum_men += float(str(row[1])) + float(str(row[3]))
 
-		return(int(sum_women) + int(sum_men), int(sum_women), int(sum_men))
+			return(int(sum_women) + int(sum_men), int(sum_women), int(sum_men))
+
+		except:
+			return (None, None, None)
 
 	def category_soc_pro(self, year, city):
 		"""
@@ -236,12 +242,15 @@ class Statistic():
 		table = "COM_" + str(year)
 		nb_travailleur = 0
 
-		for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
-			for i in range(2, len(row)):
-				if row[i] != 'None':
-					nb_travailleur += float(row[i])
+		try:
+			for row in cursor.execute("SELECT * FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+				for i in range(2, len(row)):
+					if row[i] != 'None':
+						nb_travailleur += float(row[i])
 
-		return nb_travailleur
+			return nb_travailleur
+		except:
+			return None
 
 	def get_chomeur(self, city, year):
 		"""
@@ -259,12 +268,15 @@ class Statistic():
 		nb_chomeur = 0
 		city = str(city)
 
-		for row in cursor.execute("SELECT Agriculteurs_Chomeurs_RP" + str(year) + ", \"Artisans,_commercants,_chefs_d'entreprise_Chomeurs_RP" + str(year) + "\", Cadres_et_professions_intellectuelles_superieures_Chomeurs_RP" + str(year) + ", Professions_intermediaires_Chomeurs_RP" + str(year) + ", Employes_Chomeurs_RP" + str(year) + ", Ouvriers_Chomeurs_RP" + str(year) + " FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
-			for value in row:
-				if value != 'None':
-					nb_chomeur += float(value)
+		try:
+			for row in cursor.execute("SELECT Agriculteurs_Chomeurs_RP" + str(year) + ", \"Artisans,_commercants,_chefs_d'entreprise_Chomeurs_RP" + str(year) + "\", Cadres_et_professions_intellectuelles_superieures_Chomeurs_RP" + str(year) + ", Professions_intermediaires_Chomeurs_RP" + str(year) + ", Employes_Chomeurs_RP" + str(year) + ", Ouvriers_Chomeurs_RP" + str(year) + " FROM " + table + " WHERE " + table + ".Libelle_de_commune LIKE '" + city[0].upper() + city[1::].lower() + "'"):
+				for value in row:
+					if value != 'None':
+						nb_chomeur += float(value)
 
-		return nb_chomeur
+			return nb_chomeur
+		except:
+			return None
 
 	def category_soc_pro_dep(self, year, city):
 		"""
@@ -416,20 +428,23 @@ class Statistic():
 		filename = str(Path(os.getcwd()).parent) + "/data/equip-serv-commerce-com-2018.csv"
 		df = pd.read_csv(filename, sep=';', low_memory=False)
 
-		dep_lines  = df.loc[df['Département'].str.upper() == dep.upper()]
-		line = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
+		try:
+			dep_lines  = df.loc[df['Département'].str.upper() == dep.upper()]
+			line = df.loc[df['Libellé commune ou ARM'].str.upper() == commune.upper()]
 
-		nb_commerces_food = 0
-		nb_commerces_other = 0
+			nb_commerces_food = 0
+			nb_commerces_other = 0
 
-		for label, content in line.items():
-			if label not in ['Unnamed: 0', 'CODGEO', 'Libellé commune ou ARM', 'Région', 'Département']:
-				if label in ['Hypermarché', 'Supermarché', 'Supérette', 'Epicerie', 'Boulangerie', 'Boucherie charcuterie', 'Produits surgelés', 'Poissonnerie']:
-					nb_commerces_food += int(content.values[0])
-				else:
-					nb_commerces_other += int(content.values[0])
+			for label, content in line.items():
+				if label not in ['Unnamed: 0', 'CODGEO', 'Libellé commune ou ARM', 'Région', 'Département']:
+					if label in ['Hypermarché', 'Supermarché', 'Supérette', 'Epicerie', 'Boulangerie', 'Boucherie charcuterie', 'Produits surgelés', 'Poissonnerie']:
+						nb_commerces_food += int(content.values[0])
+					else:
+						nb_commerces_other += int(content.values[0])
 
-		return {'food': nb_commerces_food, 'other': nb_commerces_other}
+			return {'food': nb_commerces_food, 'other': nb_commerces_other}
+		except:
+			return {'food': None, 'other': None}
 
 	def set_code_insee(self, code_insee):
 		self.code_insee = code_insee

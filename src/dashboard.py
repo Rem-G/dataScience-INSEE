@@ -373,7 +373,7 @@ def update_map(selector):
 		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
 			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
 		else:
-			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
 
 @app.callback([
 				dash.dependencies.Output('modal_map_div', 'children')
@@ -387,7 +387,7 @@ def update_map_modal(selector):
 		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
 			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
 		else:
-			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
 
 ########################################################
 ################ COMMUNE INDICATOR CARDS ###############
@@ -478,12 +478,14 @@ def stats_chomage(year, com):
 	city = com[0]
 
 	chomeur = s.get_chomeur(city, year)
-	actif = s.get_actif(city, year) - chomeur
 
-	taux = round((chomeur / actif) * 100, 2)
-	taux = str(taux) + "%"
+	if chomeur:
+		actif = s.get_actif(city, year) - chomeur
+		taux = round((chomeur / actif) * 100, 2)
+		taux = str(taux) + "%"
 
-	return [taux, str(int(chomeur))]
+		return [taux, str(int(chomeur))]
+	return [None, None]
 
 ########################################################
 #################### UPDATE GRAPHES ####################
@@ -799,4 +801,4 @@ def update_graph_ages(selected_commune, year):
 	return figure
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+	app.run_server(debug=False)
