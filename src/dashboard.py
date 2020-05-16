@@ -14,10 +14,7 @@ from data_manage import *
 
 DataManage().manage(dbreset = False, mapsreset = False)
 
-#html.I(className="fa fa-camera-retro fa-lg"),
-
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 app.title = 'Dash 3 en 1'
 app.config['suppress_callback_exceptions']=True
 
@@ -56,7 +53,7 @@ select_dep = [
 					options=[{'label': s.get_dep_name(dep)+" ({})".format(dep), 'value': dep} for dep in all_options.keys()],
 					multi=True,
 					value=['74'],
-					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
+					style={'backgroundColor': 'transparent', 'font-size': '15px', 'border-radius':'0.5em'},
 					placeholder='Départements',
 				)
 			]
@@ -67,7 +64,7 @@ select_com = [
 					id = 'communes',
 					multi=True,
 					value=['Annecy'],
-					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
+					style={'backgroundColor': 'transparent', 'font-size': '15px', 'border-radius':'0.5em'},
 					placeholder='Communes',
 				)
 			]
@@ -79,10 +76,11 @@ select_year = [
 					multi=False,
 					options=years_options,
 					value='/',
-					style={'backgroundColor': 'rgba(42,42,42, 0.1)', 'color':'grey', 'font-size': '15px', 'border-radius':'0.5em'},
+					style={'backgroundColor': 'transparent', 'font-size': '15px', 'border-radius':'0.5em'},
 					placeholder='Millésimes',
-					className = 'years-dropdown'
-				)]                
+					className = 'years-dropdown',
+				)
+			]                
 
 navbar = dbc.Navbar([
 				# Use row and col to control vertical alignment of logo / brand
@@ -98,82 +96,92 @@ navbar = dbc.Navbar([
 					className="flex-nowrap",
 					style={'width': '100%'}
 				),
-		], sticky='bottom', color="#484848")
+		], sticky='d', color="rgba(48, 48, 48, 1)")
+
+# card colors = info | success | warning | danger | rose.
 
 com_cards = dbc.Card([
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H4("Commune :",
+							html.Span("Commune :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card1_nom"),
-							html.H4("Code INSEE :",
+							html.Span("NUMBER", id = "card1_nom", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Code INSEE :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card1_insee"),
-							html.H4("Code postal :",
+							html.Span("NUMBER", id = "card1_insee", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Codes postaux :",
 									className="card-text"),
-							html.H2("NUMBER", id="card1_postal"),
-							html.H4("Superficie (km²) :",
+							html.Span("NUMBER", id="card1_postal", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Superficie (km²) :",
 									className="card-text"),
-							html.H2("NUMBER", id="card1_superficie")
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
-																 'text-align' : 'center'}
+							html.Span("NUMBER", id="card1_superficie", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}), 
+						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
+												'text-align' : 'center',
+												'background' : 'rgba(48, 48, 48, 1)',
+												'border-color': 'lightgrey'}						
 						)
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("Tranche d'âge la plus représentée :", className='card-text'),
-							html.H2("NUMBER", id = "card2_group"),
-							html.H4("Nombre de personnes faisant partie de cette tranche d'âge :",
+							html.Span("Tranche d'âge la plus représentée :", className='card-text'),
+							html.Span("NUMBER", id = "card2_group", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Nombre de personnes dans cette tranche d'âge :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card2_pop")
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
-																 'text-align' : 'center'}
+							html.Span("NUMBER", id = "card2_pop", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'})
+						], inverse=True, style={'border-radius':'0.5em', 'margin-top' : '0px',
+												'text-align' : 'center',
+												'background' : 'rgba(48, 48, 48, 1)',
+												'border-color': 'lightgrey'}
 						)
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("Population :",
+							html.Span("Population :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card3_pop"),
-							html.H4("Densité de population (hab/km²) :", className="card-text"),
-							html.H2("NUMBER", id = "card3_densite")
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '0px', 'text-align' : 'center'})
+							html.Span("NUMBER", id = "card3_pop", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Densité de population (hab/km²) :", className="card-text"),
+							html.Span("NUMBER", id = "card3_densite", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'})
+						], inverse=True, style={'border-radius': '0.5em',
+												'text-align' : 'center',
+												'background' : 'rgba(48, 48, 48, 1)',
+												'border-color': 'lightgrey'}						
+						)
 					)
 				], align='center'),
 				dbc.Row([
 					dbc.Col(
 						dbc.Card([
-							html.H4(
+							html.Span(
 								"Nombre de commerces alimentaires :",
 								className="card-text"),
-							html.H2("NUMBER", id="card4_shop_food"),
-							html.H4(
-								"Nombre de commerces non alimentaires :",
+							html.Span("NUMBER", id="card4_shop_food", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("Nombre de commerces non alimentaires :",
 								className="card-text"),
-							html.H2("NUMBER", id = "card4_shop"),
+							html.Span("NUMBER", id = "card4_shop", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
 
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
+						], inverse=True, style={'border-radius':'0.5em',
+												'text-align' : 'center',
+												'background' : 'rgba(48, 48, 48, 1)',
+												'border-color': 'lightgrey'}						
+						)
 					),
 					dbc.Col(
 						dbc.Card([
-							html.H4("Taux de chômage :",
+							html.Span("Taux de chômage :",
 									className="card-text"),
-							html.H2("NUMBER", id = "card5_taux"),
-							html.H4("soit", className="card-text"),
-							html.H2("NUMBER", id="card5_nb"),
-							html.H4("personnes"),
-						], color="warning", inverse=True, style={'border-radius':'0.5em', 'margin-top' : '30px', 'text-align' : 'center'})
-					),
-					dbc.Col(
-						dbc.Card([
-							html.H2("NUMBER", id = "card6"),
-							html.H4("Text",
-									className="card-text"),
-						], color="warning", inverse=True, style={'border-radius': '0.5em', 'margin-top': '30px', 'text-align' : 'center'})
+							html.Span("NUMBER", id = "card5_taux", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("soit", className="card-text"),
+							html.Span("NUMBER", id="card5_nb", style={'font-weight': 'bold', 'font-size': 18, 'color': 'rgba(0, 173, 240, 0.8)'}),
+							html.Span("personnes"),
+						], inverse=True, style={'border-radius':'0.5em',
+												'text-align' : 'center',
+												'background' : 'rgba(48, 48, 48, 1)',
+												'border-color': 'lightgrey'}						
+						)
 					)
 				], align='center')
-			], style={'margin-top': '20px', 'border-radius':'0.5em'}, color='transparent')
+			], style={'border-radius':'0.5em', 'border-color': 'transparent'}, color='transparent')
 
 body_multi = [dbc.Row([
 				dbc.Col(
@@ -194,7 +202,8 @@ body_multi = [dbc.Row([
 body_year = dbc.Row([
 				dbc.Col(
 					dbc.Card(
-						dcc.Graph(id='graph-evolution-pop'), color="light", outline=True, style={'border-radius':'0.5em'})
+						dcc.Graph(id='graph-evolution-pop'), color="light", outline=True, style={'border-radius':'0.5em'}
+					)
 				, width=3, align="center"),
 
 				dbc.Col(
@@ -213,12 +222,14 @@ modal = dbc.Modal(
 			[
 				dbc.ModalHeader("Dash 3 en 1 - Utilisation"),
 				dbc.ModalBody([
-					html.P("Ce dashboard propose différents indicateurs liés à une ou plusieurs communes de France métropolitaine et d'Outre-mer."),
-					html.Br(),
-					html.P("Les communes sont cumulables pour le mode Multi-millésimes, ainsi le dashboard affichera les indicateurs de chaque commune et la somme des indicateurs de ces dernières."),
-					html.P("Le mode annuel permet quant à lui d'afficher des indicateurs plus précis sur une commune à une date donnée."),
-					html.Br(),
-					html.P("La carte proposée à partir des données DVF affiche le prix moyen du m² de logement pour la commune sélectionnée. De plus, elle permet de comparer la valeur foncière de la commune avec le reste du département.")
+					html.P("Ce dashboard propose des indicateurs à partir de différentes données sur une ou plusieurs communes de France métropolitaine et d'Outre-mer."),
+					html.P("Deux modes disponibles :"),
+					html.P("- Multi-millésimes : affiche les indicateurs de chaque commune ainsi que la somme de ces derniers"),
+					html.P("- Annuel : affiche des indicateurs plus précis sur une commune à une date donnée"),
+					html.P("Pour chaque graphique les courbes peuvent être activées ou désactivées en cliquant sur leur nom dans la légende."),
+					html.P("La carte proposée à partir des données DVF est cliquable, elle permet d'obtenir la valeur foncière moyenne d'un m2 de logement dans une commune mais aussi de comparer cette valeur avec les autres communes du département."),
+					html.P("Sources : Insee, DVF, geo.api.gouv.fr, cadastre.data.gouv.fr")
+
 				]),
 				dbc.ModalFooter(
 					dbc.Button(
@@ -232,7 +243,7 @@ modal = dbc.Modal(
 
 modal_map = dbc.Modal(
 			[
-				dbc.ModalHeader("Représentation valeur foncière logement - Donnée DVF"),
+				dbc.ModalHeader("Valeur foncière logement - Donnée DVF"),
 				dbc.ModalBody([
 						html.Div(id='modal_map_div')
 				]),
@@ -256,11 +267,14 @@ app.layout = html.Div([
 				dbc.Row([
 					dbc.Col(
 						html.Div(
-							com_cards, style={'overflow': 'auto', 'height': '395px'}
-						), style={'width': '100%'}
+							com_cards,
+							style={'overflow': 'auto', 'max-height': '370px'},
+						),
+						style={'width': '100%'},
+						align = 'center'
 					),
 					dbc.Col([
-						html.P(["Valeur foncière logement - Donnée DVF ", dbc.Button('Agrandir', style={'height': 24, 'font-size': 10, 'background-color': 'rgba(0,126,255,1)'}, id="p_map")], style={'text-align': 'center', 'height': 10}),
+						html.P(["Valeur foncière logement - Donnée DVF ", dbc.Button('Agrandir', style={'height': 24, 'font-size': 10, 'background-color': 'rgba(0, 173, 240, 0.8)'}, id="p_map")], style={'text-align': 'center', 'height': 10}),
 						html.Div(id='map')])
 				], style={'margin-left': '5px', 'margin-right': '5px'}),
 
@@ -359,7 +373,7 @@ def update_map(selector):
 		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
 			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
 		else:
-			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='370', style={'border-radius':'0.5em'})]
 
 @app.callback([
 				dash.dependencies.Output('modal_map_div', 'children')
@@ -373,7 +387,7 @@ def update_map_modal(selector):
 		if Path(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html').is_file():
 			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', selector[0])) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
 		else:
-			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'maps', 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
+			return [html.Iframe(srcDoc = open(str(Path.joinpath(STATIC_PATH, 'nodata')) + '.html', 'r', encoding='utf-8').read(), width='100%', height='600', style={'border-radius':'0.5em'})]
 
 ########################################################
 ################ COMMUNE INDICATOR CARDS ###############
@@ -442,7 +456,7 @@ def stats_commerce(com, dep):
 	else:
 		city = com[0]
 
-	res = s.commerces_com(city, dep[0])
+	res = s.commerces_com(com[0], dep[0])
 
 	shop = res['other']
 	shop_food = res['food']
@@ -464,12 +478,14 @@ def stats_chomage(year, com):
 	city = com[0]
 
 	chomeur = s.get_chomeur(city, year)
-	actif = s.get_actif(city, year) - chomeur
 
-	taux = round((chomeur / actif) * 100, 2)
-	taux = str(taux) + "%"
+	if chomeur:
+		actif = s.get_actif(city, year) - chomeur
+		taux = round((chomeur / actif) * 100, 2)
+		taux = str(taux) + "%"
 
-	return [taux, str(int(chomeur))]
+		return [taux, str(int(chomeur))]
+	return [None, None]
 
 ########################################################
 #################### UPDATE GRAPHES ####################
@@ -548,7 +564,7 @@ def update_graph_evolution_pop(selected_commune):
 			x = x_years,
 			y = y_pop_women,
 			name = commune+' Femmes',
-			marker = dict(size = '10', color = DEFAULT_PLOTLY_COLORS[0]),
+			marker = dict(color = DEFAULT_PLOTLY_COLORS[0]),
 			visible = 'legendonly'
 			)
 		)
@@ -576,8 +592,8 @@ def update_graph_evolution_pop(selected_commune):
 			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			yaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
-			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-			plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			paper_bgcolor =  'transparent',
+			plot_bgcolor = 'transparent',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
@@ -636,14 +652,14 @@ def update_graph_evolution_soc_pro(selected_commune):
 	figure =  {
 		'data': traces,
 		'layout': dict(
-			title = "Evolution des catégories socio-profesionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
+			title = "Evolution des catégories socio-professionnelles à {} de {} à {}".format(legend_title, min(years), max(years)),
 			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
 			font = {'color': 'white', 'size': 10},
-			paper_bgcolor =  'rgba(0, 0, 0, 0)',
-			plot_bgcolor = 'rgba(0, 0, 0, 0)',
+			paper_bgcolor =  'transparent',
+			plot_bgcolor = 'transparent',
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
 		),
@@ -669,8 +685,8 @@ def update_graph_evolution_pop_year(selected_commune, year):
 			margin={'t': 60, 'b': 0, 'l': 0, 'r': 0},
 			title = "Répartition de la population à<br>{} en {}".format(selected_commune[0], year),
 			hovermode = 'closest',
-			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-			plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			paper_bgcolor =  'transparent',
+			plot_bgcolor = 'transparent',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.1),
 			height = 300,
@@ -717,12 +733,12 @@ def update_graph_evolution_soc_pro_year(selected_commune, year):
 		'data': traces,
 		'layout': dict(
 			margin={'t': 40, 'b': 0, 'l': 0, 'r': 0},
-			title = "Catégories socio-profesionnelles à {} en {}".format(selected_commune[0], year),
+			title = "Catégories socio-professionnelles à {} en {}".format(selected_commune[0], year),
 			xaxis = {'gridcolor' : 'rgba(238, 238, 238, 0)', 'visible': False},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)'},
 			hovermode = 'closest',
-			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-			plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			paper_bgcolor =  'transparent',
+			plot_bgcolor = 'transparent',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
@@ -762,9 +778,7 @@ def update_graph_ages(selected_commune, year):
 				marker = dict(color='rgba(55, 83, 109, 1)'),
 				)
 			)
-
 			n += 5
-
 
 	figure =  {
 		'data': traces,
@@ -774,18 +788,17 @@ def update_graph_ages(selected_commune, year):
 			xaxis = {'title': '', 'gridcolor' : 'rgba(238, 238, 238, 0)', 'tickmode' : 'linear', 'dtick': 5},
 			yaxis = {'title': 'Population', 'gridcolor' : 'rgba(238, 238, 238, 0)', 'showticklabels': False},
 			hovermode = 'closest',
-			paper_bgcolor =  'rgba(34, 34, 34, 0)',
-			plot_bgcolor = 'rgba(34, 34, 34, 0)',
+			paper_bgcolor =  'transparent',
+			plot_bgcolor = 'transparent',
 			font = {'color': 'white', 'size': 10},
 			legend = dict(orientation="h", y=-0.2),
 			height = 300,
 			showlegend = False,
 			barmode='stack',
-			#bargroupgap=0.1,
 		),
 	}
 
 	return figure
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+	app.run_server(debug=False)

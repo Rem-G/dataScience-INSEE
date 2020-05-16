@@ -1,3 +1,25 @@
 *{
     font-family: Avenir, sans-serif;
 }
+
+.has-value.Select--single>.Select-control .Select-value .Select-value-label, .has-value.is-pseudo-focused.Select--single>.Select-control .Select-value .Select-value-label {
+    color: white;
+}
+
+.Select-menu-outer{
+	background: rgba(48, 48, 48, 1);
+	color: white;
+	border-color: rgba(75, 75, 75, 1)
+}
+
+.VirtualizedSelectFocusedOption{
+	background: rgba(65, 95, 121, 0.5);
+}
+
+.VirtualizedSelectOption:hover{
+	background: rgba(65, 95, 121, 0.5);
+}
+
+.Select-input input{
+	color: white;
+}
