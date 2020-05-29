@@ -45,7 +45,7 @@ class Statistic():
 
 			superficie = round(data['surface'] / 10**2, 3)
 			pop = data['population']
-			densite = round(pop / (superficie * 10**2), 3)
+			densite = round(pop / superficie, 3)
 
 			return {'nom': nom_com, 'code_postal': code_postal, 'code_insee': insee_code, 'superficie': superficie, 'pop': pop, 'densite': densite}
 		return {'nom': "Commune fusionnée, les données pour l'année courante ne sont pas disponibles", 'code_postal': None, 'code_insee': None, 'superficie': None, 'pop': None, 'densite': None}
