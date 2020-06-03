@@ -32,7 +32,7 @@ class MapDVF():
 		c.execute("""SELECT Departement_en_geographie_2018 FROM COM_2016 WHERE Departement_en_geographie_2018 != 'DR18'""")
 		deps = c.fetchall()
 
-		return [dep[0] for dep in set(deps)]
+		return [dep[0] for dep in set(deps)]#set -> avoid duplicates, [0] -> fetchall returns (dep, None)
 
 	def auth_api(self, url):
 		token_auth = ''
@@ -114,7 +114,7 @@ class MapDVF():
 			code_insee = df['code_commune'].iloc[0]
 
 			i = j = 0
-			if not isinstance(code_postal, str):
+			if not isinstance(code_postal, str):#When the code_postal is right, we have a str
 				while np.isnan(code_postal):
 					i += 1
 					code_postal = df['code_postal'].iloc[i]

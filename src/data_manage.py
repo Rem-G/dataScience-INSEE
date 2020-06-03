@@ -59,8 +59,12 @@ class DataManage():
 			print("Shops csv created")
 
 		if mapsreset:
-			files = glob.glob(str(Path.joinpath(parent_dir, "static", "maps", "*")))
-			for f in files:
-			    os.remove(f)
+			print("############### \nReset maps \n###############")
+
+			print("This operation may take a while\n")
+			if input("Reset maps ? y/n : ").lower() == "y":
+				files = glob.glob(str(Path.joinpath(parent_dir, "static", "maps", "*")))#Delete all maps files
+				for f in files:
+				    os.remove(f)
 
 		m = MapDVF().map_main(mapsreset) #If maps are missing, it recreates them
