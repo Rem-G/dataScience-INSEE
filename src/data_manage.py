@@ -66,5 +66,9 @@ class DataManage():
 				files = glob.glob(str(Path.joinpath(parent_dir, "static", "maps", "*")))#Delete all maps files
 				for f in files:
 				    os.remove(f)
+			else:
+				mapsreset = False
+		else:
+			mapsreset = False
 
 		m = MapDVF().map_main(mapsreset) #If maps are missing, it recreates them
